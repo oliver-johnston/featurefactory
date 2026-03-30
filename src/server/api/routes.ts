@@ -104,7 +104,7 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
 
   app.patch('/api/sessions/:id', async (req, reply) => {
     const { id } = req.params as { id: string }
-    const body = req.body as { status?: 'active' | 'done' }
+    const body = req.body as { status?: 'active' | 'on_hold' | 'done' }
 
     let session: Session
     try {

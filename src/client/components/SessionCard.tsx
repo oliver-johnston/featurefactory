@@ -19,8 +19,10 @@ function timeAgo(iso: string): string {
 export function SessionCard({ session, onClick, selected = false }: Props) {
   const repoName = session.repos.map(r => r.split('/').pop() ?? r).join(', ')
   const needsAttention =
-    session.sessionState === 'waiting_for_input' ||
-    session.sessionState === 'needs_permission'
+    session.status !== 'on_hold' && (
+      session.sessionState === 'waiting_for_input' ||
+      session.sessionState === 'needs_permission'
+    )
 
   return (
     <div
@@ -40,6 +42,8 @@ export function SessionCard({ session, onClick, selected = false }: Props) {
           'w-2 h-2 rounded-full shrink-0',
           session.sessionState === 'running'
             ? 'bg-yellow animate-pulse'
+            : session.status === 'on_hold'
+            ? 'bg-yellow'
             : session.status === 'active'
             ? 'bg-green'
             : 'bg-muted',
