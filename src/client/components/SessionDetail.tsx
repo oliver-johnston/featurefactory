@@ -135,14 +135,14 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
               {session.status === 'active' && (
                 <button
                   onClick={onSetOnHold}
-                  className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                  className="w-full bg-latte-yellow border border-latte-yellow text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                 >
                   Put on Hold
                 </button>
               )}
               <button
                 onClick={handleMarkDoneClick}
-                className="w-full bg-green border border-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                className="w-full bg-latte-green border border-latte-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
               >
                 Mark done
               </button>
@@ -268,14 +268,14 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                 {session.status === 'active' && (
                   <button
                     onClick={() => { onSetOnHold(); setProgressOpen(false) }}
-                    className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                    className="w-full bg-latte-yellow border border-latte-yellow text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                   >
                     Put on Hold
                   </button>
                 )}
                 <button
                   onClick={() => { handleMarkDoneClick(); setProgressOpen(false) }}
-                  className="w-full bg-green border border-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                  className="w-full bg-latte-green border border-latte-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                 >
                   Mark done
                 </button>
