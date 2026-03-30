@@ -1,4 +1,4 @@
-export type SessionStatus = 'active' | 'done'
+export type SessionStatus = 'active' | 'on_hold' | 'done'
 
 export type SessionState = 'idle' | 'running' | 'waiting_for_input' | 'needs_permission'
 export type SessionStage = 'brainstorm' | 'design' | 'implementation_plan' | 'implement'

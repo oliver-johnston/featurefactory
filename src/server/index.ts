@@ -253,7 +253,7 @@ async function main() {
 
     const prepared = await prepareSession(taskId, async (session) => {
       const staged = await applyUserStageTransition(session, text)
-      return { ...staged, sessionState: 'running' }
+      return { ...staged, sessionState: 'running', ...(session.status === 'on_hold' ? { status: 'active' as const } : {}) }
     })
     if (!prepared) return
 

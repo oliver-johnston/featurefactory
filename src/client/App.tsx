@@ -12,7 +12,7 @@ import type { ModelOption, Session, Settings } from './types.js'
 type ModelOptionsByProvider = Record<string, ModelOption[]>
 
 export function App() {
-  const { sessions, connected, subscribeToSession, sendChatMessage, sendStopMessage, sendQueueAdd, sendQueueRemove, sendQueueForceSend, createSession, markDone, getGitStatusForSession } = useSessionSocket()
+  const { sessions, connected, subscribeToSession, sendChatMessage, sendStopMessage, sendQueueAdd, sendQueueRemove, sendQueueForceSend, createSession, markDone, setOnHold, getGitStatusForSession } = useSessionSocket()
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
   const [showNewSession, setShowNewSession] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
@@ -89,6 +89,9 @@ export function App() {
               onMarkDone={async () => {
                 await markDone(selectedSession!.id)
                 setSelectedSession(null)
+              }}
+              onSetOnHold={async () => {
+                await setOnHold(selectedSession!.id)
               }}
               subscribeToSession={subscribeToSession}
               sendChatMessage={sendChatMessage}

@@ -12,6 +12,7 @@ interface Props {
   session: Session
   onClose: () => void
   onMarkDone: () => void
+  onSetOnHold: () => void
   subscribeToSession: (taskId: string, onMessage: (msg: WsMessage) => void) => () => void
   sendChatMessage: (taskId: string, text: string) => void
   sendStopMessage: (taskId: string) => void
@@ -21,7 +22,7 @@ interface Props {
   gitStatus: GitStatusType | null
 }
 
-export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession, sendChatMessage, sendStopMessage, sendQueueAdd, sendQueueRemove, sendQueueForceSend, gitStatus }: Props) {
+export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subscribeToSession, sendChatMessage, sendStopMessage, sendQueueAdd, sendQueueRemove, sendQueueForceSend, gitStatus }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('chat')
   const [designContent, setDesignContent] = useState('')
   const [implContent, setImplContent] = useState('')
@@ -125,12 +126,20 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
         </div>
         <TaskList todos={todos} />
         <div className="mt-auto p-3 border-t border-overlay flex flex-col gap-2">
-          {session.status === 'active' && (
+          {session.status !== 'done' && (
             <>
               <QuickActions
                 status={gitStatus}
                 onSendMessage={handleGitMessage}
               />
+              {session.status === 'active' && (
+                <button
+                  onClick={onSetOnHold}
+                  className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                >
+                  Put on hold
+                </button>
+              )}
               <button
                 onClick={handleMarkDoneClick}
                 className="w-full bg-green border border-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
@@ -163,7 +172,7 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
           <div className="flex items-center gap-3">
             <span className="text-sm font-semibold text-text truncate">{session.title}</span>
             <div className="ml-auto flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${sessionRunning ? 'bg-yellow animate-pulse' : session.status === 'active' ? 'bg-green' : 'bg-muted'}`} />
+              <span className={`w-2 h-2 rounded-full ${sessionRunning ? 'bg-yellow animate-pulse' : session.status === 'on_hold' ? 'bg-yellow' : session.status === 'active' ? 'bg-green' : 'bg-muted'}`} />
               <span className="text-xs text-muted">{session.sessionState ?? session.status}</span>
             </div>
           </div>
@@ -250,12 +259,20 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
             <div className="flex-1 overflow-y-auto">
               <TaskList todos={todos} />
             </div>
-            {session.status === 'active' && (
+            {session.status !== 'done' && (
               <div className="p-3 border-t border-overlay flex flex-col gap-2">
                 <QuickActions
                   status={gitStatus}
                   onSendMessage={handleGitMessage}
                 />
+                {session.status === 'active' && (
+                  <button
+                    onClick={() => { onSetOnHold(); setProgressOpen(false) }}
+                    className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                  >
+                    Put on hold
+                  </button>
+                )}
                 <button
                   onClick={() => { handleMarkDoneClick(); setProgressOpen(false) }}
                   className="w-full bg-green border border-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"

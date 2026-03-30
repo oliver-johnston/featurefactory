@@ -14,9 +14,11 @@ interface Props {
 }
 
 export function Sidebar({ sessions, selectedSessionId, onSelectSession, onNewSession, connected, onOpenSettings }: Props) {
+  const [onHoldExpanded, setOnHoldExpanded] = useState(true)
   const [doneExpanded, setDoneExpanded] = useState(false)
 
-  const activeSessions = sessions.filter(s => s.status !== 'done')
+  const activeSessions = sessions.filter(s => s.status === 'active')
+  const onHoldSessions = sessions.filter(s => s.status === 'on_hold')
   const doneSessions = sessions.filter(s => s.status === 'done')
 
   return (
@@ -46,6 +48,26 @@ export function Sidebar({ sessions, selectedSessionId, onSelectSession, onNewSes
           />
         ))}
 
+        {onHoldSessions.length > 0 && (
+          <>
+            <button
+              onClick={() => setOnHoldExpanded(!onHoldExpanded)}
+              className="flex items-center gap-2 px-2 py-1.5 text-xs text-muted hover:text-text transition-colors"
+            >
+              <span className={`transition-transform ${onHoldExpanded ? 'rotate-90' : ''}`}>▶</span>
+              <span>On Hold ({onHoldSessions.length})</span>
+            </button>
+            {onHoldExpanded && onHoldSessions.map(session => (
+              <SessionCard
+                key={session.id}
+                session={session}
+                selected={session.id === selectedSessionId}
+                onClick={() => onSelectSession(session)}
+              />
+            ))}
+          </>
+        )}
+
         {doneSessions.length > 0 && (
           <>
             <button
@@ -66,7 +88,7 @@ export function Sidebar({ sessions, selectedSessionId, onSelectSession, onNewSes
           </>
         )}
 
-        {activeSessions.length === 0 && doneSessions.length === 0 && (
+        {activeSessions.length === 0 && onHoldSessions.length === 0 && doneSessions.length === 0 && (
           <div className="text-muted text-xs text-center mt-8">
             No sessions yet.
           </div>

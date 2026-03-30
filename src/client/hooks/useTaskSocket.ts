@@ -151,9 +151,17 @@ export function useSessionSocket() {
     })
   }, [])
 
+  const setOnHold = useCallback(async (taskId: string): Promise<void> => {
+    await fetch(`/api/sessions/${taskId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'on_hold' }),
+    })
+  }, [])
+
   const getGitStatusForSession = useCallback((taskId: string): GitStatus | null => {
     return gitStatus.get(taskId) ?? null
   }, [gitStatus])
 
-  return { sessions, connected, subscribeToSession, sendChatMessage, sendStopMessage, sendQueueAdd, sendQueueRemove, sendQueueForceSend, createSession, markDone, getGitStatusForSession }
+  return { sessions, connected, subscribeToSession, sendChatMessage, sendStopMessage, sendQueueAdd, sendQueueRemove, sendQueueForceSend, createSession, markDone, setOnHold, getGitStatusForSession }
 }
