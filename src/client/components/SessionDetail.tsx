@@ -137,7 +137,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                   onClick={onSetOnHold}
                   className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                 >
-                  Put on hold
+                  Put on Hold
                 </button>
               )}
               <button
@@ -270,7 +270,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                     onClick={() => { onSetOnHold(); setProgressOpen(false) }}
                     className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                   >
-                    Put on hold
+                    Put on Hold
                   </button>
                 )}
                 <button
