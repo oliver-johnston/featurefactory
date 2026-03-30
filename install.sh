@@ -13,6 +13,6 @@ npm link
 echo ""
 echo "Feature Factory installed successfully!"
 echo ""
-echo "  Run:   feature-factory"
+echo "  Run:   featurefactory"
 echo "  Dev:   npm run dev"
 echo ""
