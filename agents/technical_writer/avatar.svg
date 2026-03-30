@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <rect width="40" height="40" fill="#c2410c"/>
+  <!-- Medium-length dark hair (frames face on sides) -->
+  <rect x="11" y="2" width="18" height="3" fill="#2d1a0a"/>
+  <rect x="7" y="5" width="26" height="4" fill="#2d1a0a"/>
+  <rect x="7" y="9" width="5" height="13" fill="#2d1a0a"/>
+  <rect x="30" y="9" width="3" height="13" fill="#2d1a0a"/>
+  <!-- Warm medium-brown skin (South Asian tone) -->
+  <rect x="10" y="9" width="20" height="14" fill="#be7840"/>
+  <!-- Eyes (thoughtful, calm) -->
+  <rect x="14" y="13" width="3" height="2" fill="#1c1917"/>
+  <rect x="23" y="13" width="3" height="2" fill="#1c1917"/>
+  <!-- Thoughtful gentle smile -->
+  <rect x="15" y="20" width="10" height="1" fill="#7c3d10"/>
+  <!-- Neck -->
+  <rect x="17" y="23" width="6" height="3" fill="#be7840"/>
+  <!-- Orange-red professional blouse -->
+  <rect x="6" y="26" width="28" height="14" fill="#ea580c"/>
+  <!-- Collar / V-neck points -->
+  <rect x="14" y="26" width="5" height="3" fill="#9a3412"/>
+  <rect x="21" y="26" width="5" height="3" fill="#9a3412"/>
+  <!-- Center button placket -->
+  <rect x="19" y="29" width="2" height="11" fill="#9a3412"/>
+  <!-- Buttons -->
+  <rect x="19" y="30" width="2" height="1" fill="#f8fafc"/>
+  <rect x="19" y="33" width="2" height="1" fill="#f8fafc"/>
+  <rect x="19" y="36" width="2" height="1" fill="#f8fafc"/>
+</svg>

@@ -1,0 +1,17 @@
+id: debugger
+name: "Debugger"
+role: "Root-Cause Analysis"
+description: "Systematically diagnoses bugs and failing tests, identifies root causes, and implements targeted fixes."
+prompt: "prompt.md"
+avatar: "avatar.svg"
+capabilities:
+  git: true
+  filesystem: true
+  network: false
+defaults:
+  shell: bash
+  start_status: in_progress
+  command:
+    - claude
+    - --allowedTools
+    - Read,Write,Edit,MultiEdit,Glob,Grep,Bash,Skill

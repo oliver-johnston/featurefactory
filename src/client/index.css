@@ -1,0 +1,156 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-bg: #11111b;
+  --color-mantle: #181825;
+  --color-surface: #1e1e2e;
+  --color-overlay: #313244;
+  --color-muted: #6c7086;
+  --color-subtle: #585b70;
+  --color-text: #cdd6f4;
+  --color-subtext: #a6adc8;
+  --color-mauve: #cba6f7;
+  --color-sky: #89dceb;
+  --color-sky-light: #b0e6f2;
+  --color-green: #a6e3a1;
+  --color-red: #f38ba8;
+  --color-yellow: #f9e2af;
+  --color-indigo: #6366f1;
+  --color-indigo-light: #818cf8;
+}
+
+html, body {
+  background-color: var(--color-bg);
+}
+
+@keyframes pulse-border {
+  0%, 100% { border-color: color-mix(in srgb, var(--color-indigo) 40%, transparent); }
+  50% { border-color: var(--color-indigo); }
+}
+
+.animate-pulse-border {
+  animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes needs-attention {
+  0%, 100% { background-color: var(--color-surface); }
+  50% { background-color: color-mix(in srgb, var(--color-yellow) 15%, var(--color-surface)); }
+}
+
+.animate-needs-attention {
+  animation: needs-attention 2s ease-in-out infinite;
+}
+
+/* Factory loading animations */
+@keyframes factory-walk {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-1px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-1px); }
+}
+
+@keyframes factory-logo-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-0.5px); }
+}
+
+@keyframes factory-walk-legs {
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(-1); }
+}
+
+@keyframes factory-forklift-forks {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes factory-forklift-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1px); }
+}
+
+@keyframes factory-conveyor-belt {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(40px); }
+}
+
+@keyframes factory-conveyor-roller {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
+@keyframes factory-gear-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes factory-gear-spin-reverse {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes factory-lever-pull {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-30deg); }
+}
+
+@keyframes factory-arm-pull {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(-2px); }
+}
+
+@keyframes factory-weld-arm {
+  0%, 100% { transform: rotate(0deg); transform-origin: 11px 12px; }
+  50% { transform: rotate(5deg); transform-origin: 11px 12px; }
+}
+
+@keyframes factory-weld-sparks {
+  0% { transform: translate(0, 0); opacity: 1; }
+  50% { transform: translate(2px, -2px); opacity: 0.3; }
+  100% { transform: translate(-1px, 1px); opacity: 1; }
+}
+
+@keyframes factory-weld-glow {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes factory-hammer-strike {
+  0% { transform: rotate(0deg); transform-origin: 11px 9px; }
+  45% { transform: rotate(90deg); transform-origin: 11px 9px; }
+  55% { transform: rotate(90deg); transform-origin: 11px 9px; }
+  100% { transform: rotate(0deg); transform-origin: 11px 9px; }
+}
+
+@keyframes factory-anvil-sparks {
+  0%, 45% { opacity: 0; }
+  50% { opacity: 1; }
+  70% { opacity: 0.5; }
+  80%, 100% { opacity: 0; }
+}
+
+@keyframes factory-anvil-glow {
+  0%, 45% { fill: #f9e2af; }
+  50% { fill: #f38ba8; }
+  70%, 100% { fill: #f9e2af; }
+}
+
+@keyframes factory-text-glow {
+  0%, 100% { opacity: 0.5; text-shadow: 0 0 4px rgba(99, 102, 241, 0); }
+  50% { opacity: 1; text-shadow: 0 0 8px rgba(99, 102, 241, 0.6), 0 0 16px rgba(99, 102, 241, 0.3); }
+}
+
+/* Slowed-down animation for "awaiting user input" state (10% speed) */
+.factory-animation-slow svg *,
+.factory-animation-slow span {
+  animation-duration: 10s !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .factory-animation svg *,
+  .factory-animation span,
+  .logo-animated g {
+    animation: none !important;
+  }
+}

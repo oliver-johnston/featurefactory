@@ -1,0 +1,14 @@
+#!/usr/bin/env node
+import { fileURLToPath } from 'url'
+import { dirname, resolve } from 'path'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const entry = resolve(__dirname, '../dist/server/bundle.js')
+const { routeCli } = await import(entry)
+
+// Strip node and script path, pass remaining args
+const args = process.argv.slice(2)
+routeCli(args).catch((err) => {
+  console.error(err)
+  process.exit(1)
+})

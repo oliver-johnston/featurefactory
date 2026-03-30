@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <rect width="40" height="40" fill="#5b21b6"/>
+  <!-- Afro hair - wide rounded shape -->
+  <rect x="12" y="1" width="16" height="2" fill="#1c1917"/>
+  <rect x="8" y="3" width="24" height="4" fill="#1c1917"/>
+  <rect x="4" y="7" width="8" height="11" fill="#1c1917"/>
+  <rect x="28" y="7" width="8" height="11" fill="#1c1917"/>
+  <!-- Dark warm-brown skin -->
+  <rect x="10" y="9" width="20" height="14" fill="#7c4b1a"/>
+  <!-- Eyes (open and engaging) -->
+  <rect x="13" y="13" width="4" height="2" fill="#1c1917"/>
+  <rect x="23" y="13" width="4" height="2" fill="#1c1917"/>
+  <!-- Big warm smile -->
+  <rect x="14" y="20" width="12" height="2" fill="#5c2d0a"/>
+  <!-- Neck -->
+  <rect x="17" y="23" width="6" height="3" fill="#7c4b1a"/>
+  <!-- Deep violet hoodie -->
+  <rect x="6" y="26" width="28" height="14" fill="#7c3aed"/>
+  <!-- Dark neckline collar -->
+  <rect x="15" y="26" width="10" height="2" fill="#4c1d95"/>
+  <!-- Neural-net / circuit detail (light violet accent lines) -->
+  <rect x="9" y="31" width="5" height="1" fill="#a78bfa"/>
+  <rect x="11" y="33" width="3" height="1" fill="#a78bfa"/>
+  <rect x="26" y="31" width="5" height="1" fill="#a78bfa"/>
+  <rect x="26" y="33" width="3" height="1" fill="#a78bfa"/>
+</svg>

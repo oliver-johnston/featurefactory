@@ -1,0 +1,17 @@
+id: requirements_writer
+name: "Requirements Writer"
+role: "Orchestration Agent"
+description: "Receives feature requests, clarifies if needed, then plans and spawns sub-tasks for other agents."
+prompt: "prompt.md"
+avatar: "avatar.svg"
+capabilities:
+  git: true
+  filesystem: true
+  network: true
+defaults:
+  shell: bash
+  start_status: in_progress
+  command:
+    - claude
+    - --allowedTools
+    - Read,Write,Edit,MultiEdit,Glob,Grep,Bash,WebFetch,WebSearch

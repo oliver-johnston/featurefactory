@@ -1,0 +1,17 @@
+id: pr_reviewer
+name: "PR Reviewer"
+role: "Code Reviewer"
+description: "Reviews committed code changes for correctness and quality. Pushes the branch on approval or sends it back for fixes."
+prompt: "prompt.md"
+avatar: "avatar.svg"
+capabilities:
+  git: true
+  filesystem: true
+  network: true
+defaults:
+  shell: bash
+  start_status: in_progress
+  command:
+    - claude
+    - --allowedTools
+    - Read,Write,Edit,MultiEdit,Glob,Grep,Bash,Skill
