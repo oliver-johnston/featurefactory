@@ -30,7 +30,7 @@ export function Sidebar({ sessions, selectedSessionId, onSelectSession, onNewSes
       <div className="px-3 pb-3 border-b border-overlay">
         <button
           onClick={onNewSession}
-          className="w-full bg-indigo/20 border border-indigo/40 text-indigo hover:bg-indigo/30 transition-colors rounded px-3 py-2 text-sm font-semibold"
+          className="w-full bg-indigo border border-indigo text-white hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-semibold"
         >
           + New Session
         </button>

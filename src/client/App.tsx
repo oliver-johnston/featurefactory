@@ -60,7 +60,7 @@ export function App() {
         <span className="font-bold text-base text-white">Feature Factory</span>
         <button
           onClick={() => setShowNewSession(true)}
-          className="ml-auto bg-indigo/20 border border-indigo/40 text-indigo hover:bg-indigo/30 transition-colors rounded px-3 py-1 text-xs font-semibold"
+          className="ml-auto bg-indigo border border-indigo text-white hover:brightness-90 transition-all rounded px-3 py-1 text-xs font-semibold"
         >
           + New Session
         </button>

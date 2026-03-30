@@ -6,8 +6,23 @@ interface Props {
   onSendMessage: (text: string) => void
 }
 
+const CATPPUCCIN_PALETTE = [
+  { text: '#1e1e2e', bg: '#f5e0dc', bgHover: '#edd4cf', border: '#e8c9c4' }, // Rosewater
+  { text: '#1e1e2e', bg: '#cba6f7', bgHover: '#b98ef5', border: '#b486e8' }, // Mauve
+  { text: '#1e1e2e', bg: '#fab387', bgHover: '#f9a06d', border: '#e89a6e' }, // Peach
+  { text: '#1e1e2e', bg: '#a6e3a1', bgHover: '#90d98a', border: '#88cc83' }, // Green
+  { text: '#1e1e2e', bg: '#89dceb', bgHover: '#6fd3e6', border: '#6ac5d6' }, // Sky
+  { text: '#1e1e2e', bg: '#f5c2e7', bgHover: '#f1ade0', border: '#e6a5d6' }, // Pink
+  { text: '#1e1e2e', bg: '#74c7ec', bgHover: '#5bbce8', border: '#5ab0d8' }, // Sapphire
+  { text: '#1e1e2e', bg: '#b4befe', bgHover: '#9da9fd', border: '#969fef' }, // Lavender
+  { text: '#1e1e2e', bg: '#94e2d5', bgHover: '#7ddacc', border: '#78ccbf' }, // Teal
+  { text: '#1e1e2e', bg: '#f2cdcd', bgHover: '#ecbaba', border: '#e0b2b2' }, // Flamingo
+  { text: '#1e1e2e', bg: '#89b4fa', bgHover: '#70a3f8', border: '#6b99e8' }, // Blue
+]
+
 export function QuickActions({ status, onSendMessage }: Props) {
   const [actions, setActions] = useState<QuickAction[]>([])
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   useEffect(() => {
     fetch('/api/settings')
@@ -37,15 +52,25 @@ export function QuickActions({ status, onSendMessage }: Props) {
 
       {actions.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          {actions.map((action, i) => (
-            <button
-              key={i}
-              onClick={() => onSendMessage(action.message)}
-              className="w-full bg-indigo/20 border border-indigo/40 text-indigo hover:bg-indigo/30 transition-colors rounded px-3 py-2 text-sm font-medium text-left"
-            >
-              {action.label}
-            </button>
-          ))}
+          {actions.map((action, i) => {
+            const palette = CATPPUCCIN_PALETTE[i % CATPPUCCIN_PALETTE.length]
+            return (
+              <button
+                key={i}
+                onClick={() => onSendMessage(action.message)}
+                onMouseEnter={() => setHoveredIndex(i)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center"
+                style={{
+                  color: palette.text,
+                  backgroundColor: hoveredIndex === i ? palette.bgHover : palette.bg,
+                  border: `1px solid ${palette.border}`,
+                }}
+              >
+                💬 {action.label}
+              </button>
+            )
+          })}
         </div>
       )}
     </div>
