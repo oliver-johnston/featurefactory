@@ -7,17 +7,17 @@ interface Props {
 }
 
 const CATPPUCCIN_PALETTE = [
-  { text: '#1e1e2e', bg: '#f5e0dc', bgHover: '#edd4cf', border: '#e8c9c4' }, // Rosewater
-  { text: '#1e1e2e', bg: '#cba6f7', bgHover: '#b98ef5', border: '#b486e8' }, // Mauve
-  { text: '#1e1e2e', bg: '#fab387', bgHover: '#f9a06d', border: '#e89a6e' }, // Peach
-  { text: '#1e1e2e', bg: '#a6e3a1', bgHover: '#90d98a', border: '#88cc83' }, // Green
-  { text: '#1e1e2e', bg: '#89dceb', bgHover: '#6fd3e6', border: '#6ac5d6' }, // Sky
-  { text: '#1e1e2e', bg: '#f5c2e7', bgHover: '#f1ade0', border: '#e6a5d6' }, // Pink
-  { text: '#1e1e2e', bg: '#74c7ec', bgHover: '#5bbce8', border: '#5ab0d8' }, // Sapphire
-  { text: '#1e1e2e', bg: '#b4befe', bgHover: '#9da9fd', border: '#969fef' }, // Lavender
-  { text: '#1e1e2e', bg: '#94e2d5', bgHover: '#7ddacc', border: '#78ccbf' }, // Teal
-  { text: '#1e1e2e', bg: '#f2cdcd', bgHover: '#ecbaba', border: '#e0b2b2' }, // Flamingo
-  { text: '#1e1e2e', bg: '#89b4fa', bgHover: '#70a3f8', border: '#6b99e8' }, // Blue
+  { text: '#fff', bg: '#dc8a78', bgHover: '#c77d6d' }, // Rosewater
+  { text: '#fff', bg: '#8839ef', bgHover: '#7a33d6' }, // Mauve
+  { text: '#fff', bg: '#fe640b', bgHover: '#e55a0a' }, // Peach
+  { text: '#fff', bg: '#40a02b', bgHover: '#399026' }, // Green
+  { text: '#fff', bg: '#04a5e5', bgHover: '#0494cd' }, // Sky
+  { text: '#fff', bg: '#ea76cb', bgHover: '#d36ab6' }, // Pink
+  { text: '#fff', bg: '#209fb5', bgHover: '#1d8fa2' }, // Sapphire
+  { text: '#fff', bg: '#7287fd', bgHover: '#6679e4' }, // Lavender
+  { text: '#fff', bg: '#179299', bgHover: '#15838a' }, // Teal
+  { text: '#fff', bg: '#dd7878', bgHover: '#c76c6c' }, // Flamingo
+  { text: '#fff', bg: '#1e66f5', bgHover: '#1b5cdc' }, // Blue
 ]
 
 export function QuickActions({ status, onSendMessage }: Props) {
@@ -64,7 +64,6 @@ export function QuickActions({ status, onSendMessage }: Props) {
                 style={{
                   color: palette.text,
                   backgroundColor: hoveredIndex === i ? palette.bgHover : palette.bg,
-                  border: `1px solid ${palette.border}`,
                 }}
               >
                 💬 {action.label}
