@@ -24,7 +24,7 @@ export function TaskList({ todos }: Props) {
                 <span className="inline-block w-3.5 h-3.5 border-2 border-indigo rounded-sm animate-pulse" />
               )}
               {todo.status === 'pending' && (
-                <span className="inline-block w-3.5 h-3.5 border border-muted rounded-full" />
+                <span className="inline-block w-3.5 h-3.5 border border-muted rounded-sm" />
               )}
             </span>
             <span className={
