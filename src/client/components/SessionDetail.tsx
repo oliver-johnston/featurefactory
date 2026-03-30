@@ -133,7 +133,8 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
               />
               <button
                 onClick={handleMarkDoneClick}
-                className="w-full bg-green border border-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                className="w-full transition-all rounded px-3 py-2 text-sm font-medium hover:brightness-110"
+                style={{ backgroundColor: '#628168', color: '#a6e3a1', border: '1px solid #4e6753' }}
               >
                 Mark done
               </button>
@@ -258,7 +259,8 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
                 />
                 <button
                   onClick={() => { handleMarkDoneClick(); setProgressOpen(false) }}
-                  className="w-full bg-green border border-green text-bg hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                  className="w-full transition-all rounded px-3 py-2 text-sm font-medium hover:brightness-110"
+                  style={{ backgroundColor: '#628168', color: '#a6e3a1', border: '1px solid #4e6753' }}
                 >
                   Mark done
                 </button>

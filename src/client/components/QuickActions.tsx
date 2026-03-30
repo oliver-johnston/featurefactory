@@ -6,18 +6,19 @@ interface Props {
   onSendMessage: (text: string) => void
 }
 
+// Catppuccin Mocha colors blended ~50% with background (#1e1e2e) for muted solid buttons
 const CATPPUCCIN_PALETTE = [
-  { text: '#1e1e2e', bg: '#f5e0dc', bgHover: '#edd4cf', border: '#e8c9c4' }, // Rosewater
-  { text: '#1e1e2e', bg: '#cba6f7', bgHover: '#b98ef5', border: '#b486e8' }, // Mauve
-  { text: '#1e1e2e', bg: '#fab387', bgHover: '#f9a06d', border: '#e89a6e' }, // Peach
-  { text: '#1e1e2e', bg: '#a6e3a1', bgHover: '#90d98a', border: '#88cc83' }, // Green
-  { text: '#1e1e2e', bg: '#89dceb', bgHover: '#6fd3e6', border: '#6ac5d6' }, // Sky
-  { text: '#1e1e2e', bg: '#f5c2e7', bgHover: '#f1ade0', border: '#e6a5d6' }, // Pink
-  { text: '#1e1e2e', bg: '#74c7ec', bgHover: '#5bbce8', border: '#5ab0d8' }, // Sapphire
-  { text: '#1e1e2e', bg: '#b4befe', bgHover: '#9da9fd', border: '#969fef' }, // Lavender
-  { text: '#1e1e2e', bg: '#94e2d5', bgHover: '#7ddacc', border: '#78ccbf' }, // Teal
-  { text: '#1e1e2e', bg: '#f2cdcd', bgHover: '#ecbaba', border: '#e0b2b2' }, // Flamingo
-  { text: '#1e1e2e', bg: '#89b4fa', bgHover: '#70a3f8', border: '#6b99e8' }, // Blue
+  { text: '#f5e0dc', bg: '#897f85', bgHover: '#9a8f94', border: '#6b6367' }, // Rosewater
+  { text: '#cba6f7', bg: '#756293', bgHover: '#856fa6', border: '#5d4e76' }, // Mauve
+  { text: '#fab387', bg: '#8c695b', bgHover: '#9e7768', border: '#6e5348' }, // Peach
+  { text: '#a6e3a1', bg: '#628168', bgHover: '#729478', border: '#4e6753' }, // Green
+  { text: '#89dceb', bg: '#547d8d', bgHover: '#618e9f', border: '#43636f' }, // Sky
+  { text: '#f5c2e7', bg: '#8a708b', bgHover: '#9b7f9c', border: '#6c586d' }, // Pink
+  { text: '#74c7ec', bg: '#49738d', bgHover: '#54839f', border: '#3a5b6f' }, // Sapphire
+  { text: '#b4befe', bg: '#696e96', bgHover: '#777daa', border: '#535777' }, // Lavender
+  { text: '#94e2d5', bg: '#598082', bgHover: '#679293', border: '#466567' }, // Teal
+  { text: '#f2cdcd', bg: '#88767e', bgHover: '#99858d', border: '#6b5d63' }, // Flamingo
+  { text: '#89b4fa', bg: '#546994', bgHover: '#6078a8', border: '#435376' }, // Blue
 ]
 
 export function QuickActions({ status, onSendMessage }: Props) {
