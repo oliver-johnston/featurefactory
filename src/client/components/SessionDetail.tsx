@@ -135,15 +135,14 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
               {session.status === 'active' && (
                 <button
                   onClick={onSetOnHold}
-                  className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                  className="w-full bg-latte-yellow text-white hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                 >
                   Put on Hold
                 </button>
               )}
               <button
                 onClick={handleMarkDoneClick}
-                className="w-full transition-all rounded px-3 py-2 text-sm font-medium hover:brightness-110"
-                style={{ backgroundColor: '#628168', color: '#a6e3a1', border: '1px solid #4e6753' }}
+                className="w-full bg-latte-green text-white hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
               >
                 Mark Done
               </button>
@@ -269,15 +268,14 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                 {session.status === 'active' && (
                   <button
                     onClick={() => { onSetOnHold(); setProgressOpen(false) }}
-                    className="w-full bg-yellow/20 border border-yellow text-yellow hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
+                    className="w-full bg-latte-yellow text-white hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                   >
                     Put on Hold
                   </button>
                 )}
                 <button
                   onClick={() => { handleMarkDoneClick(); setProgressOpen(false) }}
-                  className="w-full transition-all rounded px-3 py-2 text-sm font-medium hover:brightness-110"
-                  style={{ backgroundColor: '#628168', color: '#a6e3a1', border: '1px solid #4e6753' }}
+                  className="w-full bg-latte-green text-white hover:brightness-90 transition-all rounded px-3 py-2 text-sm font-medium"
                 >
                   Mark Done
                 </button>
