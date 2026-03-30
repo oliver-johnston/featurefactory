@@ -20,19 +20,19 @@ All state lives in plain files. No database. No cloud.
 ## Install
 
 ```bash
-git clone https://github.com/oliver-johnston/feature-factory.git
-cd feature-factory
+git clone https://github.com/oliver-johnston/featurefactory.git
+cd featurefactory
 ./install.sh
 ```
 
-This installs dependencies, builds the project, and links the `feature-factory` CLI globally.
+This installs dependencies, builds the project, and links the `featurefactory` CLI globally.
 
 ## Run
 
 Start Feature Factory from the root of any Git repository:
 
 ```bash
-feature-factory
+featurefactory
 ```
 
 For development (hot-reload server + Vite dev server):
