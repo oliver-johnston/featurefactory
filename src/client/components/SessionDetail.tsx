@@ -136,7 +136,7 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
                 className="w-full transition-all rounded px-3 py-2 text-sm font-medium hover:brightness-110"
                 style={{ backgroundColor: '#628168', color: '#a6e3a1', border: '1px solid #4e6753' }}
               >
-                Mark done
+                Mark Done
               </button>
             </>
           )}
@@ -262,7 +262,7 @@ export function SessionDetail({ session, onClose, onMarkDone, subscribeToSession
                   className="w-full transition-all rounded px-3 py-2 text-sm font-medium hover:brightness-110"
                   style={{ backgroundColor: '#628168', color: '#a6e3a1', border: '1px solid #4e6753' }}
                 >
-                  Mark done
+                  Mark Done
                 </button>
               </div>
             )}
