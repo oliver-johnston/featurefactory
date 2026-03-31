@@ -113,11 +113,16 @@ function ConveyorScene() {
       <rect x="34" y="22" width="2" height="4" fill="#6c7086" />
       {/* belt (top) */}
       <rect x="2" y="14" width="36" height="2" fill="#6c7086" />
-      {/* rollers */}
+      {/* rollers with tyre housings */}
       <g>
-        <rect x="6" y="18" width="4" height="2" fill="#818cf8" style={{ animation: 'factory-conveyor-roller 0.5s linear infinite', transformOrigin: '8px 19px' }} />
-        <rect x="18" y="18" width="4" height="2" fill="#818cf8" style={{ animation: 'factory-conveyor-roller 0.5s linear infinite', transformOrigin: '20px 19px' }} />
-        <rect x="30" y="18" width="4" height="2" fill="#818cf8" style={{ animation: 'factory-conveyor-roller 0.5s linear infinite', transformOrigin: '32px 19px' }} />
+        {/* tyre housings */}
+        <circle cx="8" cy="20" r="3" fill="#11111b" />
+        <circle cx="20" cy="20" r="3" fill="#11111b" />
+        <circle cx="32" cy="20" r="3" fill="#11111b" />
+        {/* spinning rollers */}
+        <rect x="6" y="19" width="4" height="2" fill="#818cf8" style={{ animation: 'factory-conveyor-roller 0.5s linear infinite', transformOrigin: '8px 20px' }} />
+        <rect x="18" y="19" width="4" height="2" fill="#818cf8" style={{ animation: 'factory-conveyor-roller 0.5s linear infinite', transformOrigin: '20px 20px' }} />
+        <rect x="30" y="19" width="4" height="2" fill="#818cf8" style={{ animation: 'factory-conveyor-roller 0.5s linear infinite', transformOrigin: '32px 20px' }} />
       </g>
       {/* boxes sliding on belt */}
       <g style={{ animation: 'factory-conveyor-belt 4s linear infinite' }}>
