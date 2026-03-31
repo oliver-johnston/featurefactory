@@ -108,10 +108,11 @@ export async function registerWs(
         if (msg.type === 'chat:subscribe') {
           const watcher = getWatcher(msg.taskId)
           if (!watcher) return
-          const [todos, design, impl] = await Promise.all([
+          const [todos, design, impl, prs] = await Promise.all([
             watcher.readFile('todos'),
             watcher.readFile('design'),
             watcher.readFile('implementation'),
+            watcher.readFile('prs'),
           ])
           send(socket, {
             type: 'file:list',
@@ -120,6 +121,7 @@ export async function registerWs(
               { fileType: 'todos', content: todos },
               { fileType: 'design', content: design },
               { fileType: 'implementation', content: impl },
+              { fileType: 'prs', content: prs },
             ],
           })
           // Replay persisted chat history
