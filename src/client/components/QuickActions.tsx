@@ -62,7 +62,7 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
               rel="noopener noreferrer"
               className="text-xs text-indigo hover:underline truncate"
             >
-              {url.replace(/^https?:\/\/github\.com\//, '')}
+              {url.replace(/^https?:\/\/[^/]+\//, '')}
             </a>
           ))}
         </div>

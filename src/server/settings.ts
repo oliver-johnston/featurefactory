@@ -28,6 +28,7 @@ function getDefaults(): Settings {
       default: { provider: 'anthropic', id: 'claude-opus-4-6' },
     },
     quickActions: [...DEFAULT_QUICK_ACTIONS],
+    githubHosts: ['github.com'],
   }
 }
 
@@ -47,7 +48,9 @@ function mergeWithDefaults(saved: Partial<Settings>): Settings {
   const defaultModel = saved.models?.default ?? defaults.models.default
   const quickActions = saved.quickActions ?? defaults.quickActions
 
-  return { models: { available, default: defaultModel }, quickActions }
+  const githubHosts = saved.githubHosts ?? defaults.githubHosts
+
+  return { models: { available, default: defaultModel }, quickActions, githubHosts }
 }
 
 export async function readSettings(): Promise<Settings> {

@@ -43,6 +43,7 @@ import {
   syncSessionStage,
 } from './workflow.js'
 import type { SessionStage } from '../shared/types.js'
+import { readSettings } from './settings.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const CWD = process.cwd()
@@ -78,19 +79,47 @@ function persistTodosFromEvent(worktreePath: string, event: ChatStreamEvent): vo
   }
 }
 
+function appendPrUrl(worktreePath: string, url: string): void {
+  const prsPath = getPrsContextPath(worktreePath)
+  readFile(prsPath, 'utf-8')
+    .then(raw => {
+      const prs: string[] = JSON.parse(raw)
+      if (prs.includes(url)) return // deduplicate
+      prs.push(url)
+      return writeFile(prsPath, JSON.stringify(prs, null, 2), 'utf-8')
+    })
+    .catch(err => console.error(`[prs] failed to persist PR:`, err))
+}
+
 function persistPrsFromEvent(worktreePath: string, event: ChatStreamEvent): void {
-  if (event.type !== 'assistant') return
-  for (const block of event.message.content) {
-    if (block.type === 'tool_use' && block.name === 'PrCreated' && typeof (block.input as any).url === 'string') {
-      const prsPath = getPrsContextPath(worktreePath)
-      readFile(prsPath, 'utf-8')
-        .then(raw => {
-          const prs: string[] = JSON.parse(raw)
-          prs.push((block.input as any).url)
-          return writeFile(prsPath, JSON.stringify(prs, null, 2), 'utf-8')
-        })
-        .catch(err => console.error(`[prs] failed to persist PR:`, err))
+  // Explicit PrCreated tool signal
+  if (event.type === 'assistant') {
+    for (const block of event.message.content) {
+      if (block.type === 'tool_use' && block.name === 'PrCreated' && typeof (block.input as any).url === 'string') {
+        appendPrUrl(worktreePath, (block.input as any).url)
+      }
     }
+  }
+
+  // Auto-detect PR URLs from tool results (e.g. gh pr create output)
+  if (event.type === 'tool') {
+    readSettings()
+      .then(settings => {
+        const hosts = settings.githubHosts
+        const pattern = new RegExp(
+          `https?://(?:${hosts.map(h => h.replace(/\./g, '\\.')).join('|')})/[^/]+/[^/]+/pull/\\d+`,
+          'g',
+        )
+        for (const result of event.content) {
+          const matches = result.content.match(pattern)
+          if (matches) {
+            for (const url of matches) {
+              appendPrUrl(worktreePath, url)
+            }
+          }
+        }
+      })
+      .catch(err => console.error(`[prs] failed to scan for PR URLs:`, err))
   }
 }
 
