@@ -47,12 +47,17 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
           <div className="text-xs text-muted">
             commits: <span className="font-bold text-green">{status.ahead} ahead</span>, <span className="font-bold text-yellow">{status.behind} behind</span> main
             {(status.uncommitted > 0 || status.untracked > 0) && (
-              <> · {status.uncommitted > 0 && <span className="font-bold text-yellow">{status.uncommitted} uncommitted</span>}{status.uncommitted > 0 && status.untracked > 0 && ', '}{status.untracked > 0 && <span className="font-bold text-red">{status.untracked} untracked</span>}</>
+              <> · {status.uncommitted > 0 && <span className="font-bold text-red">{status.uncommitted} uncommitted</span>}{status.uncommitted > 0 && status.untracked > 0 && ', '}{status.untracked > 0 && <span className="font-bold text-red">{status.untracked} untracked</span>}</>
             )}
           </div>
         )}
 
-        {prs.length > 0 && (
+      </div>
+
+      {/* PRs section */}
+      {prs.length > 0 && (
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs text-muted uppercase tracking-wider font-semibold">Pull Requests</span>
           <div className="flex flex-wrap gap-1.5">
             {prs.map((url, i) => (
               <a
@@ -66,8 +71,8 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
               </a>
             ))}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Actions section */}
       {actions.length > 0 && (
