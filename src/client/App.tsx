@@ -55,7 +55,7 @@ export function App() {
     : null
 
   return (
-    <div className="bg-bg text-text font-sans flex flex-col overflow-hidden" style={{ height: 'var(--app-height, 100dvh)' }}>
+    <div className="bg-bg text-text font-sans flex flex-col h-full overflow-hidden">
       {/* Mobile header (no desktop header — logo/title live in sidebar now) */}
       <header className="sm:hidden px-4 py-3 border-b border-overlay flex items-center gap-3 shrink-0">
         <Logo />
