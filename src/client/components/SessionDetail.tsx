@@ -274,6 +274,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
               <div className="p-3 border-t border-overlay flex flex-col gap-2">
                 <QuickActions
                   status={gitStatus}
+                  prs={prs}
                   onSendMessage={handleGitMessage}
                 />
                 {session.status === 'active' && (
