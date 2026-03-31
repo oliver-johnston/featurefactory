@@ -359,7 +359,7 @@ export function FactoryAnimation({ className, slow }: Props) {
         className="text-sm text-muted italic"
         style={{ animation: 'factory-text-glow 2.5s ease-in-out infinite' }}
       >
-        {slow ? 'awaiting next instruction...' : statusText}
+        {slow ? 'Awaiting next instruction...' : statusText}
       </span>
     </span>
   )
