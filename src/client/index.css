@@ -143,10 +143,10 @@ html, body {
   50% { opacity: 1; text-shadow: 0 0 8px rgba(99, 102, 241, 0.6), 0 0 16px rgba(99, 102, 241, 0.3); }
 }
 
-/* Slowed-down animation for "awaiting user input" state (7% speed) */
+/* Slowed-down animation for "awaiting user input" state */
 .factory-animation-slow svg *,
 .factory-animation-slow span {
-  animation-duration: 14s !important;
+  animation-duration: 15s !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
