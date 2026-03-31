@@ -15,13 +15,12 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
   const [text, setText] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
 
-  // Keep input above virtual keyboard using visualViewport
+  // Resize app to visual viewport (shrinks when mobile keyboard opens)
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
     const update = () => {
-      const offset = window.innerHeight - (vv.offsetTop + vv.height)
-      document.documentElement.style.setProperty('--keyboard-offset', `${offset}px`)
+      document.documentElement.style.setProperty('--app-height', `${vv.height}px`)
     }
     vv.addEventListener('resize', update)
     vv.addEventListener('scroll', update)
@@ -64,10 +63,7 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
   }
 
   return (
-    <div
-      className="border-t border-overlay bg-mantle px-3 py-2 flex gap-2 items-end"
-      style={{ marginBottom: 'var(--keyboard-offset, 0px)' }}
-    >
+    <div className="border-t border-overlay bg-mantle px-3 py-2 flex gap-2 items-end">
       <textarea
         ref={inputRef}
         value={text}
