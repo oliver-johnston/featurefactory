@@ -16,6 +16,8 @@ export function App() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null)
   const [showNewSession, setShowNewSession] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [mobileOnHoldExpanded, setMobileOnHoldExpanded] = useState(true)
+  const [mobileDoneExpanded, setMobileDoneExpanded] = useState(false)
   const [modelOptions, setModelOptions] = useState<ModelOptionsByProvider | null>(null)
   const [modelsError, setModelsError] = useState<string | null>(null)
   const [defaultModel, setDefaultModel] = useState<{ provider: string; id: string } | null>(null)
@@ -53,7 +55,7 @@ export function App() {
     : null
 
   return (
-    <div className="bg-bg min-h-screen text-text font-sans flex flex-col">
+    <div className="bg-bg h-dvh text-text font-sans flex flex-col">
       {/* Mobile header (no desktop header — logo/title live in sidebar now) */}
       <header className="sm:hidden px-4 py-3 border-b border-overlay flex items-center gap-3 shrink-0">
         <Logo />
@@ -106,27 +108,71 @@ export function App() {
           <>
             {/* Mobile: session list */}
             <main className="sm:hidden p-4 flex-1">
-              {sessions.length === 0 ? (
-                <div className="text-muted text-sm mt-10 text-center">
-                  No active sessions.{' '}
-                  <span
-                    onClick={() => setShowNewSession(true)}
-                    className="text-indigo cursor-pointer underline"
-                  >
-                    Start one
-                  </span>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {sessions.map(session => (
-                    <SessionCard
-                      key={session.id}
-                      session={session}
-                      onClick={() => setSelectedSession(session)}
-                    />
-                  ))}
-                </div>
-              )}
+              {(() => {
+                const activeSessions = sessions.filter(s => s.status === 'active')
+                const onHoldSessions = sessions.filter(s => s.status === 'on_hold')
+                const doneSessions = sessions.filter(s => s.status === 'done')
+                if (activeSessions.length === 0 && onHoldSessions.length === 0 && doneSessions.length === 0) {
+                  return (
+                    <div className="text-muted text-sm mt-10 text-center">
+                      No active sessions.{' '}
+                      <span
+                        onClick={() => setShowNewSession(true)}
+                        className="text-indigo cursor-pointer underline"
+                      >
+                        Start one
+                      </span>
+                    </div>
+                  )
+                }
+                return (
+                  <div className="flex flex-col gap-3">
+                    {activeSessions.map(session => (
+                      <SessionCard
+                        key={session.id}
+                        session={session}
+                        onClick={() => setSelectedSession(session)}
+                      />
+                    ))}
+                    {onHoldSessions.length > 0 && (
+                      <>
+                        <button
+                          onClick={() => setMobileOnHoldExpanded(!mobileOnHoldExpanded)}
+                          className="flex items-center gap-2 px-1 py-1 text-xs text-muted hover:text-text transition-colors"
+                        >
+                          <span className={`transition-transform ${mobileOnHoldExpanded ? 'rotate-90' : ''}`}>▶</span>
+                          <span>On Hold ({onHoldSessions.length})</span>
+                        </button>
+                        {mobileOnHoldExpanded && onHoldSessions.map(session => (
+                          <SessionCard
+                            key={session.id}
+                            session={session}
+                            onClick={() => setSelectedSession(session)}
+                          />
+                        ))}
+                      </>
+                    )}
+                    {doneSessions.length > 0 && (
+                      <>
+                        <button
+                          onClick={() => setMobileDoneExpanded(!mobileDoneExpanded)}
+                          className="flex items-center gap-2 px-1 py-1 text-xs text-muted hover:text-text transition-colors"
+                        >
+                          <span className={`transition-transform ${mobileDoneExpanded ? 'rotate-90' : ''}`}>▶</span>
+                          <span>Done ({doneSessions.length})</span>
+                        </button>
+                        {mobileDoneExpanded && doneSessions.map(session => (
+                          <SessionCard
+                            key={session.id}
+                            session={session}
+                            onClick={() => setSelectedSession(session)}
+                          />
+                        ))}
+                      </>
+                    )}
+                  </div>
+                )
+              })()}
             </main>
 
             {/* Desktop: empty state */}
