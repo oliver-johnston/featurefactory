@@ -4,6 +4,7 @@ import type { FileType } from '../../shared/types.js'
 import {
   getDesignContextPath,
   getImplementationContextPath,
+  getPrsContextPath,
   getTodosContextPath,
 } from '../context.js'
 
@@ -21,17 +22,19 @@ export class FileWatcher {
 
   async start(onChange: OnChange): Promise<void> {
     const todosPath = getTodosContextPath(this.worktreeDir)
+    const prsPath = getPrsContextPath(this.worktreeDir)
     const designPath = getDesignContextPath(this.worktreeDir)
     const implementationPath = getImplementationContextPath(this.worktreeDir)
 
     const pathToType = new Map<string, FileType>([
       [todosPath, 'todos'],
+      [prsPath, 'prs'],
       [designPath, 'design'],
       [implementationPath, 'implementation'],
     ])
 
     this.watcher = chokidar.watch(
-      [todosPath, designPath, implementationPath],
+      [todosPath, prsPath, designPath, implementationPath],
       { ignoreInitial: true, persistent: false, usePolling: true, interval: 100 },
     )
     this.watcher.on('change', async (changedPath: string) => {
@@ -63,6 +66,9 @@ export class FileWatcher {
   private async resolvePath(fileType: FileType): Promise<string | null> {
     if (fileType === 'todos') {
       return getTodosContextPath(this.worktreeDir)
+    }
+    if (fileType === 'prs') {
+      return getPrsContextPath(this.worktreeDir)
     }
     return fileType === 'design'
       ? getDesignContextPath(this.worktreeDir)

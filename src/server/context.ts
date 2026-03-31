@@ -4,6 +4,7 @@ import { basename, join } from 'path'
 import type { Session } from '../shared/types.js'
 
 export const DEFAULT_TODOS_CONTENT = '[]'
+export const DEFAULT_PRS_CONTENT = '[]'
 export const DEFAULT_DESIGN_CONTENT = '# Design\n\nNo design notes yet.\n'
 export const DEFAULT_IMPLEMENTATION_CONTENT = '# Implementation\n\nNo implementation plan yet.\n'
 
@@ -17,6 +18,10 @@ export function getTaskContextPath(worktreePath: string): string {
 
 export function getTodosContextPath(worktreePath: string): string {
   return join(getContextDir(worktreePath), 'todos.json')
+}
+
+export function getPrsContextPath(worktreePath: string): string {
+  return join(getContextDir(worktreePath), 'prs.json')
 }
 
 export function getDesignContextPath(worktreePath: string): string {
@@ -95,6 +100,7 @@ export async function ensureSessionContextFiles(session: Session, legacyTaskDir:
 
   const taskPath = getTaskContextPath(session.worktree.root)
   const todosPath = getTodosContextPath(session.worktree.root)
+  const prsPath = getPrsContextPath(session.worktree.root)
   const designPath = getDesignContextPath(session.worktree.root)
   const implementationPath = getImplementationContextPath(session.worktree.root)
 
@@ -116,11 +122,13 @@ export async function ensureSessionContextFiles(session: Session, legacyTaskDir:
   if (isStale) {
     // Stale files from another session — overwrite with fresh defaults
     await writeFile(todosPath, DEFAULT_TODOS_CONTENT, 'utf-8')
+    await writeFile(prsPath, DEFAULT_PRS_CONTENT, 'utf-8')
     await writeFile(designPath, DEFAULT_DESIGN_CONTENT, 'utf-8')
     await writeFile(implementationPath, DEFAULT_IMPLEMENTATION_CONTENT, 'utf-8')
   } else {
     // Fresh session or resuming — write only if missing
     await writeIfMissing(todosPath, DEFAULT_TODOS_CONTENT)
+    await writeIfMissing(prsPath, DEFAULT_PRS_CONTENT)
     await writeIfMissing(designPath, DEFAULT_DESIGN_CONTENT)
     await writeIfMissing(implementationPath, DEFAULT_IMPLEMENTATION_CONTENT)
   }
