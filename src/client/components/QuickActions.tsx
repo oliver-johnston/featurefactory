@@ -3,6 +3,7 @@ import type { GitStatus as GitStatusType, QuickAction } from '../types.js'
 
 interface Props {
   status: GitStatusType | null
+  prs: string[]
   onSendMessage: (text: string) => void
 }
 
@@ -20,7 +21,7 @@ const CATPPUCCIN_PALETTE = [
   { text: '#fff', bg: '#1e66f5', bgHover: '#1b5cdc' }, // Blue
 ]
 
-export function QuickActions({ status, onSendMessage }: Props) {
+export function QuickActions({ status, prs, onSendMessage }: Props) {
   const [actions, setActions] = useState<QuickAction[]>([])
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
@@ -48,6 +49,23 @@ export function QuickActions({ status, onSendMessage }: Props) {
             </div>
           )}
         </>
+      )}
+
+      {prs.length > 0 && (
+        <div className="flex flex-col gap-1">
+          <span className="text-xs text-muted uppercase tracking-wider font-semibold">Pull Requests</span>
+          {prs.map((url, i) => (
+            <a
+              key={i}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-indigo hover:underline truncate"
+            >
+              {url.replace(/^https?:\/\/github\.com\//, '')}
+            </a>
+          ))}
+        </div>
       )}
 
       {actions.length > 0 && (

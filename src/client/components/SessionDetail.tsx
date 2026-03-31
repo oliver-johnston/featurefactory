@@ -28,6 +28,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
   const [implContent, setImplContent] = useState('')
   const [progressOpen, setProgressOpen] = useState(false)
   const [todos, setTodos] = useState<Array<{ content: string; status: 'pending' | 'in_progress' | 'completed'; activeForm: string }>>([])
+  const [prs, setPrs] = useState<string[]>([])
   const [showConfirm, setShowConfirm] = useState(false)
 
   const chatListenerRef = useRef<((msg: WsMessage) => void) | null>(null)
@@ -40,6 +41,9 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
           if (f.fileType === 'todos') {
             try { setTodos(JSON.parse(f.content)) } catch { /* ignore parse errors */ }
           }
+          if (f.fileType === 'prs') {
+            try { setPrs(JSON.parse(f.content)) } catch { /* ignore */ }
+          }
           if (f.fileType === 'design') setDesignContent(f.content)
           if (f.fileType === 'implementation') setImplContent(f.content)
         }
@@ -47,6 +51,9 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
       if (msg.type === 'file:updated') {
         if (msg.fileType === 'todos') {
           try { setTodos(JSON.parse(msg.content)) } catch { /* ignore */ }
+        }
+        if (msg.fileType === 'prs') {
+          try { setPrs(JSON.parse(msg.content)) } catch { /* ignore */ }
         }
         if (msg.fileType === 'design') setDesignContent(msg.content)
         if (msg.fileType === 'implementation') setImplContent(msg.content)
@@ -56,6 +63,9 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
         for (const block of msg.event.message.content) {
           if (block.type === 'tool_use' && block.name === 'TodoWrite' && Array.isArray(block.input.todos)) {
             setTodos(block.input.todos as Array<{ content: string; status: 'pending' | 'in_progress' | 'completed'; activeForm: string }>)
+          }
+          if (block.type === 'tool_use' && block.name === 'PrCreated' && typeof block.input.url === 'string') {
+            setPrs(prev => [...prev, block.input.url as string])
           }
         }
       }
@@ -130,6 +140,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
             <>
               <QuickActions
                 status={gitStatus}
+                prs={prs}
                 onSendMessage={handleGitMessage}
               />
               {session.status === 'active' && (
