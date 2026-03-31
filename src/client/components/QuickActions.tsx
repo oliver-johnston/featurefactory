@@ -44,20 +44,12 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
         <span className="text-xs text-muted uppercase tracking-wider font-semibold">Git</span>
 
         {status && (
-          <>
-            <div className="text-xs text-muted">
-              commits: {status.ahead} ahead, {status.behind} behind main
-              {(status.uncommitted > 0 || status.untracked > 0) && (
-                <> · {status.uncommitted > 0 && `${status.uncommitted} uncommitted`}{status.uncommitted > 0 && status.untracked > 0 && ', '}{status.untracked > 0 && `${status.untracked} untracked`}</>
-              )}
-            </div>
-
+          <div className="text-xs text-muted">
+            commits: <span className="font-bold text-green">{status.ahead} ahead</span>, <span className="font-bold text-yellow">{status.behind} behind</span> main
             {(status.uncommitted > 0 || status.untracked > 0) && (
-              <div className="text-xs text-yellow bg-yellow/10 border border-yellow/30 rounded px-2 py-1">
-                Uncommitted changes detected — the AI may not have committed its work
-              </div>
+              <> · {status.uncommitted > 0 && <span className="font-bold text-yellow">{status.uncommitted} uncommitted</span>}{status.uncommitted > 0 && status.untracked > 0 && ', '}{status.untracked > 0 && <span className="font-bold text-red">{status.untracked} untracked</span>}</>
             )}
-          </>
+          </div>
         )}
 
         {prs.length > 0 && (
