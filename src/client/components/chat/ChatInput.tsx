@@ -96,15 +96,15 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
         style={isMobile() ? undefined : { minHeight: 40, maxHeight: 200 }}
       />
       <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 shrink-0">
-        {running && (
-          <button
-            onClick={onStop}
-            className="bg-red hover:bg-red/80 text-white rounded-lg px-3 py-2 text-sm font-semibold transition-colors sm:shrink-0 w-16 sm:w-auto"
-            title="Stop"
-          >
-            ■
-          </button>
-        )}
+        {/* Mobile: always show stop, dimmed when not running. Desktop: only show when running */}
+        <button
+          onClick={onStop}
+          disabled={!running}
+          className={`${running ? 'bg-red hover:bg-red/80' : 'bg-red/30 cursor-not-allowed'} text-white rounded-lg px-3 py-2 text-sm font-semibold transition-colors w-16 ${running ? 'sm:inline-flex' : 'sm:hidden'} sm:w-auto`}
+          title="Stop"
+        >
+          ■
+        </button>
         <button
           onMouseDown={e => { e.preventDefault(); handleSend() }}
           disabled={!text.trim()}
