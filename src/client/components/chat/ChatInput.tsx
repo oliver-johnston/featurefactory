@@ -14,6 +14,7 @@ function isMobile() {
 export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) {
   const [text, setText] = useState('')
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const buttonsRef = useRef<HTMLDivElement>(null)
 
   // Resize app to visual viewport (shrinks when mobile keyboard opens)
   useEffect(() => {
@@ -21,9 +22,7 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
     if (!vv) return
     const update = () => {
       if (isMobile()) {
-        // On mobile, use viewport height to account for virtual keyboard
         document.documentElement.style.setProperty('--app-height', `${vv.height}px`)
-        // Scroll to top to prevent gap below input
         window.scrollTo(0, 0)
       } else {
         document.documentElement.style.removeProperty('--app-height')
@@ -45,17 +44,25 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
     }
   }, [autoFocus])
 
-  // Auto-resize textarea to fit content
-  const autoResize = useCallback(() => {
+  // On desktop: auto-resize textarea to fit content
+  // On mobile: match textarea height to buttons column
+  const syncHeight = useCallback(() => {
     const el = inputRef.current
     if (!el) return
-    el.style.height = 'auto'
-    el.style.height = `${Math.min(el.scrollHeight, 200)}px`
+    if (isMobile()) {
+      const buttons = buttonsRef.current
+      if (buttons) {
+        el.style.height = `${buttons.offsetHeight}px`
+      }
+    } else {
+      el.style.height = 'auto'
+      el.style.height = `${Math.min(el.scrollHeight, 200)}px`
+    }
   }, [])
 
   useEffect(() => {
-    autoResize()
-  }, [text, autoResize])
+    syncHeight()
+  }, [text, running, syncHeight])
 
   const handleSend = () => {
     const trimmed = text.trim()
@@ -70,14 +77,12 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
   }
 
   return (
-    <div className="border-t border-overlay bg-mantle px-3 py-2 flex gap-2 items-end">
+    <div className="border-t border-overlay bg-mantle px-3 py-2 flex gap-2 items-stretch">
       <textarea
         ref={inputRef}
         value={text}
         onChange={e => setText(e.target.value)}
         onKeyDown={e => {
-          // Desktop: Enter sends, Shift+Enter inserts newline
-          // Mobile: Enter always inserts newline
           if (e.key === 'Enter' && !e.shiftKey && !isMobile()) {
             e.preventDefault()
             handleSend()
@@ -86,13 +91,13 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
         placeholder="Message Claude…"
         rows={1}
         className="flex-1 bg-surface border border-overlay rounded-lg px-3 py-2 text-sm text-text placeholder-muted resize-none focus:outline-none focus:border-indigo"
-        style={{ minHeight: 40, maxHeight: 200 }}
+        style={isMobile() ? undefined : { minHeight: 40, maxHeight: 200 }}
       />
-      <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 items-end">
+      <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 shrink-0">
         {running && (
           <button
             onClick={onStop}
-            className="bg-red hover:bg-red/80 text-white rounded-lg px-3 py-2 text-sm font-semibold transition-colors shrink-0"
+            className="bg-red hover:bg-red/80 text-white rounded-lg px-3 py-2 text-sm font-semibold transition-colors sm:shrink-0 w-16 sm:w-auto"
             title="Stop"
           >
             ■
@@ -101,7 +106,7 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
         <button
           onMouseDown={e => { e.preventDefault(); handleSend() }}
           disabled={!text.trim()}
-          className="bg-indigo hover:bg-indigo-light disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg px-3 py-2 text-sm font-semibold transition-colors shrink-0"
+          className="bg-indigo hover:bg-indigo-light disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg px-3 py-2 text-sm font-semibold transition-colors sm:shrink-0 w-16 sm:w-auto"
         >
           Send
         </button>
