@@ -3,13 +3,14 @@ import staticPlugin from '@fastify/static'
 import { join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { existsSync } from 'fs'
-import { writeFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import type { ChatRunner } from './chat/runner.js'
 import {
   ensureSessionContextFiles,
   generateClaudeMd,
   getDesignContextPath,
   getImplementationContextPath,
+  getPrsContextPath,
   getTodosContextPath,
   getTaskContextPath,
 } from './context.js'
@@ -73,6 +74,22 @@ function persistTodosFromEvent(worktreePath: string, event: ChatStreamEvent): vo
       const todosPath = getTodosContextPath(worktreePath)
       writeFile(todosPath, JSON.stringify((block.input as any).todos, null, 2), 'utf-8')
         .catch(err => console.error(`[todos] failed to persist todos:`, err))
+    }
+  }
+}
+
+function persistPrsFromEvent(worktreePath: string, event: ChatStreamEvent): void {
+  if (event.type !== 'assistant') return
+  for (const block of event.message.content) {
+    if (block.type === 'tool_use' && block.name === 'PrCreated' && typeof (block.input as any).url === 'string') {
+      const prsPath = getPrsContextPath(worktreePath)
+      readFile(prsPath, 'utf-8')
+        .then(raw => {
+          const prs: string[] = JSON.parse(raw)
+          prs.push((block.input as any).url)
+          return writeFile(prsPath, JSON.stringify(prs, null, 2), 'utf-8')
+        })
+        .catch(err => console.error(`[prs] failed to persist PR:`, err))
     }
   }
 }
@@ -218,6 +235,7 @@ async function main() {
         broadcastChatEvent(session.id, { type: 'chat:event', taskId: session.id, event })
         persistChatStreamEvent(session.id, event)
         persistTodosFromEvent(session.worktree.root, event)
+        persistPrsFromEvent(session.worktree.root, event)
       },
       async () => {
         const providerSessionId = runner.getProviderSessionId()
@@ -268,6 +286,7 @@ async function main() {
         broadcastChatEvent(taskId, { type: 'chat:event', taskId, event })
         persistChatStreamEvent(taskId, event)
         persistTodosFromEvent(prepared.worktree.root, event)
+        persistPrsFromEvent(prepared.worktree.root, event)
       },
       async () => {
         const providerSessionId = runner.getProviderSessionId()
