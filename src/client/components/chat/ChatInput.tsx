@@ -16,15 +16,17 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const buttonsRef = useRef<HTMLDivElement>(null)
 
-  // Resize app to visual viewport (shrinks when mobile keyboard opens)
+  // Resize app to visual viewport only when mobile keyboard is open
   useEffect(() => {
     const vv = window.visualViewport
     if (!vv) return
     const update = () => {
-      if (isMobile()) {
+      if (isMobile() && vv.height < window.innerHeight - 50) {
+        // Keyboard is open — shrink app to visible area
         document.documentElement.style.setProperty('--app-height', `${vv.height}px`)
         window.scrollTo(0, 0)
       } else {
+        // No keyboard — let 100dvh handle it
         document.documentElement.style.removeProperty('--app-height')
       }
     }
