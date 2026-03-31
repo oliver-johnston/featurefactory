@@ -21,6 +21,11 @@ const CATPPUCCIN_PALETTE = [
   { text: '#fff', bg: '#1e66f5', bgHover: '#1b5cdc' }, // Blue
 ]
 
+function extractPrNumber(url: string): string {
+  const match = url.match(/\/pull\/(\d+)/)
+  return match ? `#${match[1]}` : url
+}
+
 export function QuickActions({ status, prs, onSendMessage }: Props) {
   const [actions, setActions] = useState<QuickAction[]>([])
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
@@ -33,61 +38,69 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
   }, [])
 
   return (
-    <div className="flex flex-col gap-2">
-      {status && (
-        <>
-          <div className="text-xs text-muted">
-            commits: {status.ahead} ahead, {status.behind} behind main
-            {(status.uncommitted > 0 || status.untracked > 0) && (
-              <> · {status.uncommitted > 0 && `${status.uncommitted} uncommitted`}{status.uncommitted > 0 && status.untracked > 0 && ', '}{status.untracked > 0 && `${status.untracked} untracked`}</>
-            )}
-          </div>
+    <div className="flex flex-col gap-3">
+      {/* Git section */}
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-muted uppercase tracking-wider font-semibold">Git</span>
 
-          {(status.uncommitted > 0 || status.untracked > 0) && (
-            <div className="text-xs text-yellow bg-yellow/10 border border-yellow/30 rounded px-2 py-1">
-              Uncommitted changes detected — the AI may not have committed its work
+        {status && (
+          <>
+            <div className="text-xs text-muted">
+              commits: {status.ahead} ahead, {status.behind} behind main
+              {(status.uncommitted > 0 || status.untracked > 0) && (
+                <> · {status.uncommitted > 0 && `${status.uncommitted} uncommitted`}{status.uncommitted > 0 && status.untracked > 0 && ', '}{status.untracked > 0 && `${status.untracked} untracked`}</>
+              )}
             </div>
-          )}
-        </>
-      )}
 
-      {prs.length > 0 && (
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-muted uppercase tracking-wider font-semibold">Pull Requests</span>
-          {prs.map((url, i) => (
-            <a
-              key={i}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-indigo hover:underline truncate"
-            >
-              {url.replace(/^https?:\/\/[^/]+\//, '')}
-            </a>
-          ))}
-        </div>
-      )}
+            {(status.uncommitted > 0 || status.untracked > 0) && (
+              <div className="text-xs text-yellow bg-yellow/10 border border-yellow/30 rounded px-2 py-1">
+                Uncommitted changes detected — the AI may not have committed its work
+              </div>
+            )}
+          </>
+        )}
 
-      {actions.length > 0 && (
-        <div className="flex flex-col gap-1.5">
-          {actions.map((action, i) => {
-            const palette = CATPPUCCIN_PALETTE[i % CATPPUCCIN_PALETTE.length]
-            return (
-              <button
+        {prs.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {prs.map((url, i) => (
+              <a
                 key={i}
-                onClick={() => onSendMessage(action.message)}
-                onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}
-                className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center"
-                style={{
-                  color: palette.text,
-                  backgroundColor: hoveredIndex === i ? palette.bgHover : palette.bg,
-                }}
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-indigo/20 text-indigo border border-indigo/30 hover:bg-indigo/30 transition-colors"
               >
-                💬 {action.label}
-              </button>
-            )
-          })}
+                {extractPrNumber(url)}
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Actions section */}
+      {actions.length > 0 && (
+        <div className="flex flex-col gap-2">
+          <span className="text-xs text-muted uppercase tracking-wider font-semibold">Actions</span>
+          <div className="flex flex-col gap-1.5">
+            {actions.map((action, i) => {
+              const palette = CATPPUCCIN_PALETTE[i % CATPPUCCIN_PALETTE.length]
+              return (
+                <button
+                  key={i}
+                  onClick={() => onSendMessage(action.message)}
+                  onMouseEnter={() => setHoveredIndex(i)}
+                  onMouseLeave={() => setHoveredIndex(null)}
+                  className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center"
+                  style={{
+                    color: palette.text,
+                    backgroundColor: hoveredIndex === i ? palette.bgHover : palette.bg,
+                  }}
+                >
+                  {action.label}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
     </div>

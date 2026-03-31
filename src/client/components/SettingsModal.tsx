@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Settings, SettingsModelOption, QuickAction } from '../types.js'
 
-type SettingsTab = 'models' | 'quickActions'
+type SettingsTab = 'models' | 'quickActions' | 'github'
 
 interface Props {
   onClose: () => void
@@ -170,6 +170,7 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
   const tabs: { id: SettingsTab; label: string }[] = [
     { id: 'models', label: 'Models' },
     { id: 'quickActions', label: 'Quick Actions' },
+    { id: 'github', label: 'GitHub' },
   ]
 
   return (
@@ -421,6 +422,21 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
                     + Add action
                   </button>
                 )}
+              </div>
+            ) : activeTab === 'github' && settings ? (
+              /* ---- GitHub Tab ---- */
+              <div>
+                <h3 className="text-xs text-muted uppercase tracking-wider mb-2 font-semibold">GitHub Hosts</h3>
+                <p className="text-xs text-muted mb-2">One host per line. PR URLs from these hosts will be auto-detected. Default: github.com</p>
+                <textarea
+                  className="w-full bg-mantle border border-overlay rounded text-text text-sm px-2 py-1.5 resize-none font-mono"
+                  rows={5}
+                  value={settings.githubHosts.join('\n')}
+                  onChange={e => {
+                    const hosts = e.target.value.split('\n').map(h => h.trim()).filter(Boolean)
+                    setSettings({ ...settings, githubHosts: hosts.length > 0 ? hosts : ['github.com'] })
+                  }}
+                />
               </div>
             ) : null}
           </div>
