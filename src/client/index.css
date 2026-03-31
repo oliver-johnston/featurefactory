@@ -144,6 +144,9 @@ html, body {
 }
 
 /* Slowed-down animation for "awaiting user input" state */
+.factory-animation-slow {
+  opacity: 0.5;
+}
 .factory-animation-slow svg *,
 .factory-animation-slow span {
   animation-duration: 15s !important;
