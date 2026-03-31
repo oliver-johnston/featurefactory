@@ -20,7 +20,14 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
     const vv = window.visualViewport
     if (!vv) return
     const update = () => {
-      document.documentElement.style.setProperty('--app-height', `${vv.height}px`)
+      if (isMobile()) {
+        // On mobile, use viewport height to account for virtual keyboard
+        document.documentElement.style.setProperty('--app-height', `${vv.height}px`)
+        // Scroll to top to prevent gap below input
+        window.scrollTo(0, 0)
+      } else {
+        document.documentElement.style.removeProperty('--app-height')
+      }
     }
     vv.addEventListener('resize', update)
     vv.addEventListener('scroll', update)
@@ -81,7 +88,7 @@ export function ChatInput({ onSend, onStop, running, autoFocus = true }: Props) 
         className="flex-1 bg-surface border border-overlay rounded-lg px-3 py-2 text-sm text-text placeholder-muted resize-none focus:outline-none focus:border-indigo"
         style={{ minHeight: 40, maxHeight: 200 }}
       />
-      <div className="flex gap-2 items-end">
+      <div className="flex flex-col sm:flex-row gap-1.5 sm:gap-2 items-end">
         {running && (
           <button
             onClick={onStop}
