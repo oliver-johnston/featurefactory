@@ -54,7 +54,7 @@ export type ChatHistoryEntry =
   | { ts: string; type: 'assistant'; blocks: ChatContentBlock[] }
   | { ts: string; type: 'tool_result'; tool_use_id: string; content: string }
 
-export type FileType = 'todos' | 'design' | 'implementation'
+export type FileType = 'todos' | 'design' | 'implementation' | 'prs'
 
 export type WsMessage =
   | { type: 'task:updated'; task: Session }
