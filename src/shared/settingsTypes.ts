@@ -17,4 +17,5 @@ export interface Settings {
     default: { provider: string; id: string }
   }
   quickActions: QuickAction[]
+  githubHosts: string[]
 }
