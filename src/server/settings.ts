@@ -1,8 +1,8 @@
-import { readFile, writeFile, mkdir } from 'fs/promises'
+import { readFile, writeFile, mkdir, rm } from 'fs/promises'
 import { join } from 'path'
-import { FF_DIR } from './paths.js'
+import { FF_DIR, repoSettingsDir, repoSettingsPath } from './paths.js'
 import { CURATED_MODELS } from './runner/models.js'
-import type { Settings, SettingsModelOption, QuickAction } from '../shared/settingsTypes.js'
+import type { Settings, SettingsModelOption, QuickAction, RepoSettings, SettingsOverrides } from '../shared/settingsTypes.js'
 
 const SETTINGS_PATH = join(FF_DIR, 'settings.json')
 
@@ -66,4 +66,56 @@ export async function readSettings(): Promise<Settings> {
 export async function writeSettings(settings: Settings): Promise<void> {
   await mkdir(FF_DIR, { recursive: true })
   await writeFile(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n', 'utf-8')
+}
+
+function deepEqual(a: unknown, b: unknown): boolean {
+  return JSON.stringify(a) === JSON.stringify(b)
+}
+
+export async function readRepoSettings(repoPath: string): Promise<RepoSettings> {
+  try {
+    const raw = await readFile(repoSettingsPath(repoPath), 'utf-8')
+    return JSON.parse(raw) as RepoSettings
+  } catch {
+    return {}
+  }
+}
+
+export async function readEffectiveSettings(repoPath: string): Promise<Settings> {
+  const global = await readSettings()
+  const repo = await readRepoSettings(repoPath)
+  return {
+    models: repo.models ?? global.models,
+    quickActions: repo.quickActions ?? global.quickActions,
+    githubHosts: repo.githubHosts ?? global.githubHosts,
+  }
+}
+
+export async function writeRepoSettings(repoPath: string, submitted: Settings): Promise<void> {
+  const global = await readSettings()
+  const overrides: RepoSettings = {}
+
+  if (!deepEqual(submitted.models, global.models)) overrides.models = submitted.models
+  if (!deepEqual(submitted.quickActions, global.quickActions)) overrides.quickActions = submitted.quickActions
+  if (!deepEqual(submitted.githubHosts, global.githubHosts)) overrides.githubHosts = submitted.githubHosts
+
+  const dir = repoSettingsDir(repoPath)
+  const path = repoSettingsPath(repoPath)
+
+  if (Object.keys(overrides).length === 0) {
+    await rm(path, { force: true }).catch(() => {})
+    return
+  }
+
+  await mkdir(dir, { recursive: true })
+  await writeFile(path, JSON.stringify(overrides, null, 2) + '\n', 'utf-8')
+}
+
+export async function getOverrides(repoPath: string): Promise<SettingsOverrides> {
+  const repo = await readRepoSettings(repoPath)
+  return {
+    models: repo.models !== undefined,
+    quickActions: repo.quickActions !== undefined,
+    githubHosts: repo.githubHosts !== undefined,
+  }
 }

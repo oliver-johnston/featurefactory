@@ -19,3 +19,7 @@ export interface Settings {
   quickActions: QuickAction[]
   githubHosts: string[]
 }
+
+export type RepoSettings = Partial<Settings>
+
+export type SettingsOverrides = Record<'models' | 'quickActions' | 'githubHosts', boolean>

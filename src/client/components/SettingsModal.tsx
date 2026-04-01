@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import type { Settings, SettingsModelOption, QuickAction } from '../types.js'
+import { useState, useEffect, useCallback } from 'react'
+import type { Settings, SettingsModelOption, QuickAction, SettingsOverrides } from '../types.js'
 
 type SettingsTab = 'models' | 'quickActions' | 'github'
 
@@ -14,6 +14,11 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Repo-scoped settings state
+  const [repos, setRepos] = useState<string[]>([])
+  const [selectedRepo, setSelectedRepo] = useState<string | null>(null)
+  const [overrides, setOverrides] = useState<SettingsOverrides>({ models: false, quickActions: false, githubHosts: false })
 
   // Add model form state
   const [showAddModel, setShowAddModel] = useState(false)
@@ -31,19 +36,54 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
   const [editActionLabel, setEditActionLabel] = useState('')
   const [editActionMessage, setEditActionMessage] = useState('')
 
-  useEffect(() => {
-    fetch('/api/settings')
+  const fetchSettings = useCallback((repo: string | null) => {
+    setLoading(true)
+    setError(null)
+    const url = repo ? `/api/settings?repo=${encodeURIComponent(repo)}` : '/api/settings'
+    fetch(url)
       .then(r => r.json())
       .then((s: Settings) => { setSettings(s); setLoading(false) })
       .catch(e => { setError((e as Error).message); setLoading(false) })
+
+    if (repo) {
+      fetch(`/api/settings/overrides?repo=${encodeURIComponent(repo)}`)
+        .then(r => r.json())
+        .then((o: SettingsOverrides) => setOverrides(o))
+        .catch(() => {})
+    } else {
+      setOverrides({ models: false, quickActions: false, githubHosts: false })
+    }
   }, [])
+
+  useEffect(() => {
+    fetchSettings(null)
+    fetch('/api/repos')
+      .then(r => r.json())
+      .then((data: { repos: string[] }) => setRepos(data.repos ?? []))
+      .catch(() => {})
+  }, [fetchSettings])
+
+  const handleRepoChange = (repo: string | null) => {
+    setSelectedRepo(repo)
+    fetchSettings(repo)
+  }
+
+  const revertSection = async (section: 'models' | 'quickActions' | 'githubHosts') => {
+    if (!settings) return
+    try {
+      const res = await fetch('/api/settings')
+      const global: Settings = await res.json()
+      setSettings({ ...settings, [section]: global[section] })
+    } catch {}
+  }
 
   const handleSave = async () => {
     if (!settings) return
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch('/api/settings', {
+      const url = selectedRepo ? `/api/settings?repo=${encodeURIComponent(selectedRepo)}` : '/api/settings'
+      const res = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(settings),
@@ -51,6 +91,12 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
       if (!res.ok) {
         const body = await res.json()
         throw new Error(body.error ?? 'Failed to save settings')
+      }
+      if (selectedRepo) {
+        fetch(`/api/settings/overrides?repo=${encodeURIComponent(selectedRepo)}`)
+          .then(r => r.json())
+          .then((o: SettingsOverrides) => setOverrides(o))
+          .catch(() => {})
       }
       onSettingsSaved?.()
       onClose()
@@ -184,7 +230,21 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
       >
         {/* Header */}
         <div className="px-6 py-4 border-b border-overlay">
-          <h2 className="text-text text-base font-semibold">Settings</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-text text-base font-semibold">Settings</h2>
+            {repos.length > 0 && (
+              <select
+                className="bg-mantle border border-overlay rounded text-text text-sm px-2 py-1.5"
+                value={selectedRepo ?? ''}
+                onChange={e => handleRepoChange(e.target.value || null)}
+              >
+                <option value="">Global</option>
+                {repos.map(r => (
+                  <option key={r} value={r} title={r}>{r.split('/').pop()}</option>
+                ))}
+              </select>
+            )}
+          </div>
         </div>
 
         {/* Body: tabs + content */}
@@ -213,6 +273,14 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
             ) : activeTab === 'models' && settings ? (
               /* ---- Models Tab ---- */
               <div>
+                {selectedRepo && overrides.models && (
+                  <button
+                    onClick={() => revertSection('models')}
+                    className="text-xs text-muted hover:text-text mb-3 underline underline-offset-2"
+                  >
+                    Revert to global
+                  </button>
+                )}
                 {Object.entries(modelsByProvider).map(([provider, models]) => (
                   <div key={provider} className="mb-5">
                     <h3 className="text-xs text-muted uppercase tracking-wider mb-2 font-semibold">{provider}</h3>
@@ -310,6 +378,14 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
             ) : activeTab === 'quickActions' && settings ? (
               /* ---- Quick Actions Tab ---- */
               <div>
+                {selectedRepo && overrides.quickActions && (
+                  <button
+                    onClick={() => revertSection('quickActions')}
+                    className="text-xs text-muted hover:text-text mb-3 underline underline-offset-2"
+                  >
+                    Revert to global
+                  </button>
+                )}
                 <div className="flex flex-col gap-1.5">
                   {settings.quickActions.map((action, i) => (
                     <div key={i}>
@@ -426,6 +502,14 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
             ) : activeTab === 'github' && settings ? (
               /* ---- GitHub Tab ---- */
               <div>
+                {selectedRepo && overrides.githubHosts && (
+                  <button
+                    onClick={() => revertSection('githubHosts')}
+                    className="text-xs text-muted hover:text-text mb-3 underline underline-offset-2"
+                  >
+                    Revert to global
+                  </button>
+                )}
                 <h3 className="text-xs text-muted uppercase tracking-wider mb-2 font-semibold">GitHub Hosts</h3>
                 <p className="text-xs text-muted mb-2">One host per line. PR URLs from these hosts will be auto-detected. Default: github.com</p>
                 <textarea

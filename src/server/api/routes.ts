@@ -7,7 +7,7 @@ import { ensureWorktrees, removeWorktrees } from '../orchestrator/worktree.js'
 import type { ModelProvider, Session } from '../../shared/types.js'
 import type { Settings } from '../../shared/settingsTypes.js'
 import { CURATED_MODELS } from '../runner/models.js'
-import { readSettings, writeSettings } from '../settings.js'
+import { readSettings, writeSettings, readEffectiveSettings, writeRepoSettings, getOverrides } from '../settings.js'
 import { broadcastSessionUpdate, broadcastSessionRemove } from './ws.js'
 import { generateSlug } from '../slug.js'
 import { mergeToMainAndPush, pushAndCreatePR } from '../orchestrator/git.js'
@@ -39,18 +39,31 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
     return CURATED_MODELS
   })
 
-  app.get('/api/settings', async () => {
+  app.get('/api/settings', async (req) => {
+    const repo = (req.query as Record<string, string>).repo
+    if (repo) return readEffectiveSettings(repo)
     return readSettings()
   })
 
   app.put('/api/settings', async (req, reply) => {
+    const repo = (req.query as Record<string, string>).repo
     const settings = req.body as Settings
     try {
-      await writeSettings(settings)
+      if (repo) {
+        await writeRepoSettings(repo, settings)
+      } else {
+        await writeSettings(settings)
+      }
       return { success: true }
     } catch (e) {
       return reply.code(500).send({ success: false, error: (e as Error).message })
     }
+  })
+
+  app.get('/api/settings/overrides', async (req, reply) => {
+    const repo = (req.query as Record<string, string>).repo
+    if (!repo) return reply.code(400).send({ error: 'repo query param is required' })
+    return getOverrides(repo)
   })
 
   app.get('/api/sessions', async () => {

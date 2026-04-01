@@ -85,4 +85,4 @@ export type WsMessage =
   // Git status
   | { type: 'git:status'; taskId: string; status: GitStatus }
 
-export type { Settings, SettingsModelOption, QuickAction } from './settingsTypes.js'
+export type { Settings, SettingsModelOption, QuickAction, SettingsOverrides } from './settingsTypes.js'

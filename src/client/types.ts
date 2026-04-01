@@ -10,4 +10,5 @@ export type {
   Settings,
   SettingsModelOption,
   QuickAction,
+  SettingsOverrides,
 } from '@shared/types.js'
