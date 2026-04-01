@@ -238,6 +238,7 @@ export function MessageList({ taskId, registerListener, sendChatMessage, sendQue
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto px-4 py-4">
+       <div className="max-w-3xl mx-auto">
         {messages.length === 0 && (
           <div className="text-center text-muted text-sm mt-8 flex items-center justify-center gap-2">
             {(sessionRunning || waitingForInput) && <FactoryAnimation slow={waitingForInput} />}
@@ -270,6 +271,7 @@ export function MessageList({ taskId, registerListener, sendChatMessage, sendQue
           )
         })}
         <div ref={bottomRef} />
+       </div>
       </div>
       <MessageQueue
         messages={queuedMessages}

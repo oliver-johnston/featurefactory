@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { useMediaQuery } from '../hooks/useMediaQuery.js'
 import { MessageList } from './chat/MessageList.js'
 import { FileViewer } from './FileViewer.js'
 import { TaskList } from './TaskList.js'
@@ -112,6 +113,14 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
     sendChatMessage(session.id, text)
   }
 
+  const isWide = useMediaQuery('(min-width: 1600px)')
+
+  useEffect(() => {
+    if (isWide && activeTab === 'chat') {
+      setActiveTab('design')
+    }
+  }, [isWide])
+
   const sessionRunning = session.sessionState === 'running'
   const waitingForInput = session.sessionState === 'waiting_for_input'
   const repoName = session.repos.map(r => r.split('/').pop() ?? r).join(', ')
@@ -120,11 +129,12 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
     ? 'implementation plan'
     : session.stage ?? 'brainstorm'
 
-  const tabs: { id: Tab; label: string }[] = [
+  const allTabs: { id: Tab; label: string }[] = [
     { id: 'chat', label: 'Chat' },
     { id: 'design', label: 'Design' },
     { id: 'implementation', label: 'Plan' },
   ]
+  const tabs = isWide ? allTabs.filter(t => t.id !== 'chat') : allTabs
 
   return (
     <div className="flex h-full w-full overflow-hidden">
@@ -194,46 +204,96 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="shrink-0 flex border-b border-overlay">
-          {tabs.map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-indigo text-text'
-                  : 'border-transparent text-muted hover:text-text'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        {isWide ? (
+          /* Wide layout: chat left, design/plan tabs right */
+          <div className="flex-1 min-h-0 flex overflow-hidden">
+            {/* Left: Chat always visible */}
+            <div className="flex-1 min-w-0">
+              <MessageList
+                key={session.id}
+                taskId={session.id}
+                registerListener={registerChatListener}
+                sendChatMessage={sendChatMessage}
+                sendQueueAdd={sendQueueAdd}
+                sendQueueRemove={sendQueueRemove}
+                sendQueueForceSend={sendQueueForceSend}
+                sessionRunning={sessionRunning}
+                waitingForInput={waitingForInput}
+                onStop={() => sendStopMessage(session.id)}
+              />
+            </div>
+            {/* Right: Design/Plan tabs */}
+            <div className="w-[480px] shrink-0 border-l border-overlay flex flex-col">
+              <div className="shrink-0 flex border-b border-overlay">
+                {tabs.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                      activeTab === tab.id
+                        ? 'border-indigo text-text'
+                        : 'border-transparent text-muted hover:text-text'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex-1 min-h-0 overflow-hidden relative">
+                <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'design' ? '' : 'hidden'}`}>
+                  <FileViewer content={designContent} placeholder="No design doc yet." />
+                </div>
+                <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'implementation' ? '' : 'hidden'}`}>
+                  <FileViewer content={implContent} placeholder="No implementation plan yet." />
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Narrow layout: all three tabs */
+          <>
+            {/* Tabs */}
+            <div className="shrink-0 flex border-b border-overlay">
+              {tabs.map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-indigo text-text'
+                      : 'border-transparent text-muted hover:text-text'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
 
-        {/* Tab content */}
-        <div className="flex-1 min-h-0 overflow-hidden relative">
-          <div className={`absolute inset-0 ${activeTab === 'chat' ? '' : 'hidden'}`}>
-            <MessageList
-              key={session.id}
-              taskId={session.id}
-              registerListener={registerChatListener}
-              sendChatMessage={sendChatMessage}
-              sendQueueAdd={sendQueueAdd}
-              sendQueueRemove={sendQueueRemove}
-              sendQueueForceSend={sendQueueForceSend}
-              sessionRunning={sessionRunning}
-              waitingForInput={waitingForInput}
-              onStop={() => sendStopMessage(session.id)}
-            />
-          </div>
-          <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'design' ? '' : 'hidden'}`}>
-            <FileViewer content={designContent} placeholder="No design doc yet." />
-          </div>
-          <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'implementation' ? '' : 'hidden'}`}>
-            <FileViewer content={implContent} placeholder="No implementation plan yet." />
-          </div>
-        </div>
+            {/* Tab content */}
+            <div className="flex-1 min-h-0 overflow-hidden relative">
+              <div className={`absolute inset-0 ${activeTab === 'chat' ? '' : 'hidden'}`}>
+                <MessageList
+                  key={session.id}
+                  taskId={session.id}
+                  registerListener={registerChatListener}
+                  sendChatMessage={sendChatMessage}
+                  sendQueueAdd={sendQueueAdd}
+                  sendQueueRemove={sendQueueRemove}
+                  sendQueueForceSend={sendQueueForceSend}
+                  sessionRunning={sessionRunning}
+                  waitingForInput={waitingForInput}
+                  onStop={() => sendStopMessage(session.id)}
+                />
+              </div>
+              <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'design' ? '' : 'hidden'}`}>
+                <FileViewer content={designContent} placeholder="No design doc yet." />
+              </div>
+              <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'implementation' ? '' : 'hidden'}`}>
+                <FileViewer content={implContent} placeholder="No implementation plan yet." />
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Confirm dialog for mark done without merge */}
