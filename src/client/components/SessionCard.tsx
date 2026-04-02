@@ -48,10 +48,12 @@ export function SessionCard({ session, onClick, selected = false }: Props) {
             ? 'bg-green'
             : 'bg-muted',
         ].join(' ')} />
-        <span className="text-sm font-semibold text-text truncate">{session.title}</span>
+        <span className="text-sm text-text truncate">{session.title}</span>
       </div>
-      <div className="text-xs text-muted font-mono">{repoName}</div>
-      <div className="text-xs text-subtle mt-1">{timeAgo(session.created_at)}</div>
+      <div className="flex items-center justify-between gap-2 mt-1">
+        <span className="inline-flex px-2 py-0.5 rounded-full bg-surface text-xs text-muted font-mono truncate">{repoName}</span>
+        <span className="text-xs text-subtle shrink-0">{timeAgo(session.created_at)}</span>
+      </div>
     </div>
   )
 }

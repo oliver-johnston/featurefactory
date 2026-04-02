@@ -139,7 +139,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
   return (
     <div className="flex h-full w-full overflow-hidden">
       {/* Left pane: tasks */}
-      <div className="hidden sm:flex w-72 shrink-0 border-r border-overlay flex-col">
+      <div className="hidden sm:flex w-64 shrink-0 border-r border-overlay flex-col">
         <div className="px-4 py-3 border-b border-overlay flex items-center justify-between">
           <span className="text-xs text-muted uppercase tracking-wider font-semibold">Tasks</span>
           <span className="text-xs text-muted">{todos.filter(t => t.status === 'completed').length}/{todos.length}</span>
