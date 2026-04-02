@@ -6,6 +6,31 @@ interface Props {
   selected?: boolean
 }
 
+const CATPPUCCIN_COLORS = [
+  { bg: 'rgba(203,166,247,0.15)', text: '#cba6f7' }, // mauve
+  { bg: 'rgba(137,220,235,0.15)', text: '#89dceb' }, // sky
+  { bg: 'rgba(166,227,161,0.15)', text: '#a6e3a1' }, // green
+  { bg: 'rgba(249,226,175,0.15)', text: '#f9e2af' }, // yellow
+  { bg: 'rgba(243,139,168,0.15)', text: '#f38ba8' }, // red
+  { bg: 'rgba(245,194,231,0.15)', text: '#f5c2e7' }, // pink
+  { bg: 'rgba(148,226,213,0.15)', text: '#94e2d5' }, // teal
+  { bg: 'rgba(250,179,135,0.15)', text: '#fab387' }, // peach
+  { bg: 'rgba(137,180,250,0.15)', text: '#89b4fa' }, // blue
+  { bg: 'rgba(180,190,254,0.15)', text: '#b4befe' }, // lavender
+]
+
+function hashString(str: string): number {
+  let hash = 0
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0
+  }
+  return Math.abs(hash)
+}
+
+function repoColor(name: string) {
+  return CATPPUCCIN_COLORS[hashString(name) % CATPPUCCIN_COLORS.length]
+}
+
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
@@ -18,6 +43,7 @@ function timeAgo(iso: string): string {
 
 export function SessionCard({ session, onClick, selected = false }: Props) {
   const repoName = session.repos.map(r => r.split('/').pop() ?? r).join(', ')
+  const pillColor = repoColor(repoName)
   const needsAttention =
     session.status !== 'on_hold' && (
       session.sessionState === 'waiting_for_input' ||
@@ -51,7 +77,7 @@ export function SessionCard({ session, onClick, selected = false }: Props) {
         <span className="text-sm text-text truncate">{session.title}</span>
       </div>
       <div className="flex items-center justify-between gap-2 mt-1">
-        <span className="inline-flex px-2 py-0.5 rounded-full bg-surface text-xs text-muted font-mono truncate">{repoName}</span>
+        <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-mono truncate" style={{ backgroundColor: pillColor.bg, color: pillColor.text }}>{repoName}</span>
         <span className="text-xs text-subtle shrink-0">{timeAgo(session.created_at)}</span>
       </div>
     </div>

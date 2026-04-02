@@ -71,7 +71,7 @@ export function App() {
       {/* Main layout area */}
       <div className="flex-1 flex flex-col sm:flex-row overflow-hidden">
         {/* Sidebar — desktop only */}
-        <div className="hidden sm:block w-72 shrink-0">
+        <div className="hidden sm:block w-64 shrink-0">
           <Sidebar
             sessions={sessions}
             selectedSessionId={selectedSession?.id ?? null}
