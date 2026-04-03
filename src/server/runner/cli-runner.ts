@@ -27,11 +27,6 @@ export class CliRunner implements ChatRunner {
     this.runPrompt(text, onEvent, onDone, onError)
   }
 
-  setPrompts(systemPrompt: string, initialPrompt: string): void {
-    this.systemPrompt = systemPrompt
-    this.initialPrompt = initialPrompt
-  }
-
   kill(): void {
     this.killing = true
     this.rl?.close()
