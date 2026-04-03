@@ -110,6 +110,10 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
   }
 
   const handleGitMessage = (text: string, quickActionLabel?: string) => {
+    if (session.sessionState === 'running') {
+      sendQueueAdd(session.id, text)
+      return
+    }
     sendChatMessage(session.id, text, quickActionLabel)
   }
 
