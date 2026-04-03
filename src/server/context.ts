@@ -2,6 +2,9 @@ import { mkdir, readFile, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { basename, join } from 'path'
 import type { Session } from '../shared/types.js'
+import * as fullPrompt from './prompts/full.js'
+import * as quickPrompt from './prompts/quick.js'
+import * as debugPrompt from './prompts/debug.js'
 
 export const DEFAULT_TODOS_CONTENT = '[]'
 export const DEFAULT_PRS_CONTENT = '[]'
@@ -61,6 +64,15 @@ async function copyIfMissing(targetPath: string, sourcePath: string): Promise<bo
   return true
 }
 
+function getWorkflowPrompts(workflow: string) {
+  switch (workflow) {
+    case 'quick': return quickPrompt
+    case 'debug': return debugPrompt
+    case 'full':
+    default: return fullPrompt
+  }
+}
+
 export async function generateClaudeMd(session: Session): Promise<void> {
   if (session.workflow === 'free' || !session.worktree) return
 
@@ -68,6 +80,7 @@ export async function generateClaudeMd(session: Session): Promise<void> {
   const repoList = session.repos
     .map(r => `- \`${basename(r)}/\` — worktree of ${r}`)
     .join('\n')
+  const rules = getWorkflowPrompts(session.workflow ?? 'full').claudeMdRules()
   const content = [
     `# ${session.title}`,
     '',
@@ -86,11 +99,7 @@ export async function generateClaudeMd(session: Session): Promise<void> {
     '',
     'These rules take priority over any conflicting instructions loaded from superpowers skills.',
     '',
-    '- **Quick fix path**: If the task is a quick fix, present the solution directly to the user (no brainstorming). Wait for approval, then implement and commit.',
-    '- **Complex path**: If the task is more involved, use the superpowers:brainstorming skill to ask 2-3 questions, write a design to design.md, get user approval, write an implementation plan (no approval needed), then implement and commit.',
-    '- **No extra gates**: Do not ask the user for approval at steps not listed above. If a superpowers skill tells you to ask for approval or how to implement, follow these instructions instead.',
-    '- **Never ask to open a sandbox UI session.**',
-    '- **Always commit your work** as you go.',
+    ...rules,
     '',
   ].join('\n')
   await writeFile(claudeMdPath, content, 'utf-8')

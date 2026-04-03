@@ -6,7 +6,6 @@ function normalizeSession(session: Session): Session {
   return {
     ...session,
     workflow: session.workflow ?? 'full',
-    stage: (session.workflow ?? 'full') === 'free' ? undefined : (session.stage ?? 'brainstorm'),
   }
 }
 
