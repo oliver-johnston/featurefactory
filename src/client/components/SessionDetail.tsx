@@ -114,9 +114,10 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
   }
 
   const isWide = useMediaQuery('(min-width: 1600px)')
+  const isFree = session.workflow === 'free'
 
   useEffect(() => {
-    if (isWide && activeTab === 'chat') {
+    if (isWide && activeTab === 'chat' && !isFree) {
       setActiveTab('design')
     }
   }, [isWide])
@@ -130,7 +131,11 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
     { id: 'design', label: 'Design' },
     { id: 'implementation', label: 'Plan' },
   ]
-  const tabs = isWide ? allTabs.filter(t => t.id !== 'chat') : allTabs
+  const tabs = isFree
+    ? allTabs.filter(t => t.id === 'chat')
+    : isWide
+      ? allTabs.filter(t => t.id !== 'chat')
+      : allTabs
 
   return (
     <div className="flex h-full w-full overflow-hidden">
@@ -219,32 +224,34 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                 onStop={() => sendStopMessage(session.id)}
               />
             </div>
-            {/* Right: Design/Plan tabs */}
-            <div className="flex-1 min-w-0 border-l border-overlay flex flex-col">
-              <div className="shrink-0 flex border-b border-overlay">
-                {tabs.map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                      activeTab === tab.id
-                        ? 'border-indigo text-text'
-                        : 'border-transparent text-muted hover:text-text'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-              <div className="flex-1 min-h-0 overflow-hidden relative">
-                <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'design' ? '' : 'hidden'}`}>
-                  <FileViewer content={designContent} placeholder="No design doc yet." />
+            {/* Right: Design/Plan tabs (hidden for free sessions) */}
+            {!isFree && (
+              <div className="flex-1 min-w-0 border-l border-overlay flex flex-col">
+                <div className="shrink-0 flex border-b border-overlay">
+                  {tabs.map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        activeTab === tab.id
+                          ? 'border-indigo text-text'
+                          : 'border-transparent text-muted hover:text-text'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
                 </div>
-                <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'implementation' ? '' : 'hidden'}`}>
-                  <FileViewer content={implContent} placeholder="No implementation plan yet." />
+                <div className="flex-1 min-h-0 overflow-hidden relative">
+                  <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'design' ? '' : 'hidden'}`}>
+                    <FileViewer content={designContent} placeholder="No design doc yet." />
+                  </div>
+                  <div className={`absolute inset-0 overflow-y-auto ${activeTab === 'implementation' ? '' : 'hidden'}`}>
+                    <FileViewer content={implContent} placeholder="No implementation plan yet." />
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           /* Narrow layout: all three tabs */
