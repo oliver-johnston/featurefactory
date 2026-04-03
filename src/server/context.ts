@@ -62,6 +62,8 @@ async function copyIfMissing(targetPath: string, sourcePath: string): Promise<bo
 }
 
 export async function generateClaudeMd(session: Session): Promise<void> {
+  if (session.workflow === 'free' || !session.worktree) return
+
   const claudeMdPath = join(session.worktree.root, 'CLAUDE.md')
   const repoList = session.repos
     .map(r => `- \`${basename(r)}/\` — worktree of ${r}`)
@@ -95,6 +97,8 @@ export async function generateClaudeMd(session: Session): Promise<void> {
 }
 
 export async function ensureSessionContextFiles(session: Session, legacyTaskDir: string): Promise<void> {
+  if (session.workflow === 'free' || !session.worktree) return
+
   const contextDir = getContextDir(session.worktree.root)
   await mkdir(contextDir, { recursive: true })
 
