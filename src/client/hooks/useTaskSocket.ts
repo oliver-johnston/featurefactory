@@ -128,7 +128,7 @@ export function useSessionSocket() {
     repos: string[],
     provider: ModelProvider,
     model: string,
-    workflow: 'free' | 'full' = 'full',
+    workflow: 'free' | 'quick' | 'full' | 'debug' = 'full',
   ): Promise<Session> => {
     const res = await fetch('/api/sessions', {
       method: 'POST',
