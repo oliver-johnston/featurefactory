@@ -8,14 +8,17 @@ interface RepoDetection {
 
 type ModelOptionsByProvider = Record<string, ModelOption[]>
 
-function pickDefaultModel(provider: string, options: ModelOptionsByProvider): string {
-  const models = options[provider] ?? []
-  if (models.length === 0) return ''
-  if (provider === 'openai') {
-    const preferred = models.find(option => option.id === 'gpt-5-codex')
-    if (preferred) return preferred.id
+function pickDefaultCombined(options: ModelOptionsByProvider, defaultModel?: { provider: string; id: string } | null): string {
+  if (defaultModel) {
+    const models = options[defaultModel.provider] ?? []
+    if (models.some(m => m.id === defaultModel.id)) {
+      return `${defaultModel.provider}/${defaultModel.id}`
+    }
   }
-  return models[0].id
+  if (options['anthropic']?.length) return `anthropic/${options['anthropic'][0].id}`
+  const firstProvider = Object.keys(options)[0]
+  if (firstProvider && options[firstProvider].length) return `${firstProvider}/${options[firstProvider][0].id}`
+  return ''
 }
 
 interface Props {
@@ -31,8 +34,7 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
   const [workflow, setWorkflow] = useState<'free' | 'quick' | 'full' | 'debug'>('full')
   const [selectedRepos, setSelectedRepos] = useState<string[]>([])
   const [providerOptions, setProviderOptions] = useState<ModelOptionsByProvider>({})
-  const [provider, setProvider] = useState<ModelProvider>('')
-  const [model, setModel] = useState('')
+  const [combined, setCombined] = useState('')
   const [repos, setRepos] = useState<RepoDetection | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -71,30 +73,24 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
     }
     if (!modelOptions) return
 
-    const providers = Object.keys(modelOptions)
-    if (providers.length === 0) {
+    if (Object.keys(modelOptions).length === 0) {
       setError('OpenCode returned no models')
       return
     }
 
-    const defaultProvider = providers.includes('anthropic') ? 'anthropic' : providers[0]
     setProviderOptions(modelOptions)
-    const initialProvider = defaultModel?.provider && providers.includes(defaultModel.provider)
-      ? defaultModel.provider
-      : defaultProvider
-    setProvider(current => current || initialProvider)
-    const initialModel = defaultModel?.id && modelOptions[initialProvider]?.some(m => m.id === defaultModel.id)
-      ? defaultModel.id
-      : pickDefaultModel(initialProvider, modelOptions)
-    setModel(current => current || initialModel)
+    setCombined(current => current || pickDefaultCombined(modelOptions, defaultModel))
   }, [modelOptions, modelsError])
 
   const loadingModels = !modelOptions && !modelsError
 
   const handleSubmit = async () => {
     if (loadingModels) { setError('Models are still loading'); return }
-    if (!provider) { setError('Provider is required'); return }
-    if (!model.trim()) { setError('Model is required'); return }
+    if (!combined) { setError('Model is required'); return }
+    const slashIdx = combined.indexOf('/')
+    const provider = combined.substring(0, slashIdx)
+    const model = combined.substring(slashIdx + 1)
+    if (!provider || !model) { setError('Model is required'); return }
     if (workflow !== 'free') {
       if (!title.trim()) { setError('Title is required'); return }
       if (selectedRepos.length === 0) { setError('Select at least one repository'); return }
@@ -104,7 +100,7 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
     try {
       const effectiveTitle = workflow !== 'free' ? title.trim() : ''
       const effectiveRepos = workflow !== 'free' ? selectedRepos : []
-      await onCreated(effectiveTitle, effectiveRepos, provider, model.trim(), workflow)
+      await onCreated(effectiveTitle, effectiveRepos, provider, model, workflow)
       onClose()
     } catch (e) {
       setError((e as Error).message)
@@ -113,23 +109,25 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
     }
   }
 
-  const providers = Object.keys(providerOptions)
-  const selectedProviderModels = providerOptions[provider] ?? []
+  const allModels: { value: string; label: string }[] = []
+  for (const [prov, models] of Object.entries(providerOptions)) {
+    for (const m of models) {
+      allModels.push({ value: `${prov}/${m.id}`, label: `${prov}/${m.id}` })
+    }
+  }
 
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] px-4"
-      onClick={onClose}
     >
       <div
-        className="bg-surface border border-overlay rounded-lg p-7 w-full max-w-md"
-        onClick={e => e.stopPropagation()}
+        className="bg-surface border border-overlay rounded-lg p-7 w-full max-w-xl"
       >
         <h2 className="text-text text-base font-semibold mb-5">New Session</h2>
 
         <div className="mb-5">
           <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">Workflow *</label>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-4 gap-3">
             {([
               {
                 id: 'free' as const,
@@ -273,34 +271,16 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
           </div>
         )}
 
-        <div className="mb-4">
-          <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">Provider *</label>
-          <select
-            className="w-full bg-mantle border border-overlay rounded text-text text-sm px-3 py-2 focus:outline-none focus:border-indigo cursor-pointer"
-            value={provider}
-            onChange={e => {
-              const nextProvider = e.target.value as ModelProvider
-              setProvider(nextProvider)
-              setModel(pickDefaultModel(nextProvider, providerOptions))
-            }}
-            disabled={loadingModels || providers.length === 0}
-          >
-            {providers.map(option => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-        </div>
-
         <div className="mb-5">
           <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">Model *</label>
           <select
             className="w-full bg-mantle border border-overlay rounded text-text text-sm px-3 py-2 focus:outline-none focus:border-indigo cursor-pointer"
-            value={model}
-            onChange={e => setModel(e.target.value)}
-            disabled={loadingModels || selectedProviderModels.length === 0}
+            value={combined}
+            onChange={e => setCombined(e.target.value)}
+            disabled={loadingModels || allModels.length === 0}
           >
-            {selectedProviderModels.map(option => (
-              <option key={option.id} value={option.id}>{option.label}</option>
+            {allModels.map(option => (
+              <option key={option.value} value={option.value}>{option.label}</option>
             ))}
           </select>
         </div>
@@ -316,7 +296,7 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
           </button>
           <button
             onClick={handleSubmit}
-            disabled={submitting || loadingModels || providers.length === 0 || selectedProviderModels.length === 0}
+            disabled={submitting || loadingModels || allModels.length === 0}
             className="bg-indigo hover:bg-indigo-light disabled:opacity-60 disabled:cursor-not-allowed text-white transition-colors rounded px-4 py-2 text-sm font-semibold"
           >
             {submitting ? 'Starting…' : loadingModels ? 'Loading models…' : 'Start Session'}
