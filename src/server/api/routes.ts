@@ -71,19 +71,52 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
   })
 
   app.post('/api/sessions', async (req, reply) => {
-    const body = req.body as { title?: string; repos?: string[]; provider?: ModelProvider; model?: string }
+    const body = req.body as { title?: string; repos?: string[]; provider?: ModelProvider; model?: string; workflow?: 'free' | 'full' }
 
-    const title = body.title?.trim()
-    const repos = body.repos?.map(r => r.trim()).filter(Boolean)
+    const workflow = body.workflow ?? 'full'
     const provider = body.provider
     const model = body.model?.trim()
 
-    if (!title) return reply.code(400).send({ error: 'title is required' })
-    if (!repos || repos.length === 0) return reply.code(400).send({ error: 'repos is required' })
     if (!provider) return reply.code(400).send({ error: 'provider is required' })
     if (!model) return reply.code(400).send({ error: 'model is required' })
 
     let session!: Session
+
+    if (workflow === 'free') {
+      const current = createLock.then(async () => {
+        const id = await nextSessionId(TASKS_DIR)
+        const existingSessions = await listSessions(TASKS_DIR)
+        const freeCount = existingSessions.filter(s => s.workflow === 'free').length
+        const title = `Free Session #${freeCount + 1}`
+
+        session = {
+          id,
+          title,
+          repos: [],
+          provider,
+          model,
+          workflow: 'free',
+          status: 'active',
+          created_at: new Date().toISOString(),
+          worktree: null,
+        }
+
+        await writeSession(TASKS_DIR, session)
+      })
+      createLock = current.catch(() => undefined)
+      await current
+
+      await opts.onSpawn(session)
+      return reply.code(201).send(session)
+    }
+
+    // Full workflow
+    const title = body.title?.trim()
+    const repos = body.repos?.map(r => r.trim()).filter(Boolean)
+
+    if (!title) return reply.code(400).send({ error: 'title is required' })
+    if (!repos || repos.length === 0) return reply.code(400).send({ error: 'repos is required' })
+
     const current = createLock.then(async () => {
       const id = await nextSessionId(TASKS_DIR)
       const slug = await generateSlug(title)
@@ -96,6 +129,7 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
         repos,
         provider,
         model,
+        workflow: 'full',
         status: 'active',
         stage: 'brainstorm',
         created_at: new Date().toISOString(),
@@ -107,8 +141,8 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
     createLock = current.catch(() => undefined)
     await current
 
-    const { paths, warnings } = await ensureWorktrees(session.repos, session.worktree.root, session.worktree.branch)
-    session = { ...session, worktree: { ...session.worktree, paths } }
+    const { paths, warnings } = await ensureWorktrees(session.repos, session.worktree!.root, session.worktree!.branch)
+    session = { ...session, worktree: { ...session.worktree!, paths } }
     await writeSession(TASKS_DIR, session)
     await opts.onSpawn(session)
 
@@ -132,7 +166,7 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
     broadcastSessionUpdate(updated)
 
     // Remove worktrees when marking session as done
-    if (body.status === 'done' && session.status !== 'done') {
+    if (body.status === 'done' && session.status !== 'done' && session.worktree) {
       await removeWorktrees(session.repos, session.worktree.paths)
       await rm(session.worktree.root, { recursive: true, force: true }).catch(() => {})
     }
@@ -151,8 +185,10 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
     }
 
     opts.onKill(id)
-    await removeWorktrees(session.repos, session.worktree.paths)
-    await rm(session.worktree.root, { recursive: true, force: true }).catch(() => {})
+    if (session.worktree) {
+      await removeWorktrees(session.repos, session.worktree.paths)
+      await rm(session.worktree.root, { recursive: true, force: true }).catch(() => {})
+    }
     await deleteSession(TASKS_DIR, id)
     broadcastSessionRemove(id)
 
@@ -169,6 +205,8 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
       return reply.code(404).send({ error: `Session ${id} not found` })
     }
 
+    if (!session.worktree) return reply.code(400).send({ error: 'Git operations are not available for free sessions' })
+
     const repoRoot = session.repos[0]
     const result = await mergeToMainAndPush(repoRoot, session.worktree.branch)
     opts.onGitOperation(id).catch(err => console.error(`[git] Failed to broadcast status for ${id}:`, err))
@@ -184,6 +222,8 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
     } catch {
       return reply.code(404).send({ error: `Session ${id} not found` })
     }
+
+    if (!session.worktree) return reply.code(400).send({ error: 'Git operations are not available for free sessions' })
 
     const repoRoot = session.repos[0]
     const result = await pushAndCreatePR(repoRoot, session.worktree.branch, session.title)
