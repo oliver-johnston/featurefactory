@@ -92,6 +92,8 @@ export function inferStageFromSnapshot(snapshot: WorkflowSnapshot): SessionStage
 }
 
 export async function syncSessionStage(session: Session): Promise<Session> {
+  if (session.workflow === 'free' || !session.worktree) return session
+
   const currentStage = getSessionStage(session)
   const snapshot = await readWorkflowSnapshot(session.worktree.root)
   const inferredStage = inferStageFromSnapshot(snapshot)
@@ -110,6 +112,8 @@ export async function syncSessionStage(session: Session): Promise<Session> {
 }
 
 export async function applyUserStageTransition(session: Session, message: string): Promise<Session> {
+  if (session.workflow === 'free') return session
+
   const synced = await syncSessionStage(session)
   const stage = getSessionStage(synced)
 
@@ -196,5 +200,6 @@ export function getInitialTurnInstruction(stage: SessionStage): string {
 }
 
 export function shouldStartSessionOnBoot(session: Session): boolean {
+  if (session.workflow === 'free') return session.status === 'active'
   return session.status === 'active' && getSessionStage(session) !== 'implement'
 }
