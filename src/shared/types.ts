@@ -1,8 +1,7 @@
 export type SessionStatus = 'active' | 'on_hold' | 'done'
 
 export type SessionState = 'idle' | 'running' | 'waiting_for_input' | 'needs_permission'
-export type SessionStage = 'brainstorm' | 'design' | 'implementation_plan' | 'implement'
-export type SessionWorkflow = 'free' | 'full'
+export type SessionWorkflow = 'free' | 'quick' | 'full' | 'debug'
 
 export interface GitStatus {
   ahead: number
@@ -32,7 +31,6 @@ export interface Session {
   model: string
   status: SessionStatus
   sessionState?: SessionState
-  stage?: SessionStage
   workflow?: SessionWorkflow
   providerSessionId?: string
   created_at: string
