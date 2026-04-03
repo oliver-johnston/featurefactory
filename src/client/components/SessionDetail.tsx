@@ -15,7 +15,7 @@ interface Props {
   onMarkDone: () => void
   onSetOnHold: () => void
   subscribeToSession: (taskId: string, onMessage: (msg: WsMessage) => void) => () => void
-  sendChatMessage: (taskId: string, text: string) => void
+  sendChatMessage: (taskId: string, text: string, quickActionLabel?: string) => void
   sendStopMessage: (taskId: string) => void
   sendQueueAdd: (taskId: string, text: string) => void
   sendQueueRemove: (taskId: string, index: number) => void
@@ -109,8 +109,8 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
     }
   }
 
-  const handleGitMessage = (text: string) => {
-    sendChatMessage(session.id, text)
+  const handleGitMessage = (text: string, quickActionLabel?: string) => {
+    sendChatMessage(session.id, text, quickActionLabel)
   }
 
   const isWide = useMediaQuery('(min-width: 1600px)')

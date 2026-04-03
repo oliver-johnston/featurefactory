@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
+import { MessageSquare } from 'lucide-react'
 import type { GitStatus as GitStatusType, QuickAction } from '../types.js'
 
 interface Props {
   status: GitStatusType | null
   prs: string[]
-  onSendMessage: (text: string) => void
+  onSendMessage: (text: string, quickActionLabel?: string) => void
 }
 
 const CATPPUCCIN_PALETTE = [
@@ -84,15 +85,16 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
               return (
                 <button
                   key={i}
-                  onClick={() => onSendMessage(action.message)}
+                  onClick={() => onSendMessage(action.message, action.label)}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center"
+                  className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center inline-flex items-center justify-center gap-1.5"
                   style={{
                     color: palette.text,
                     backgroundColor: hoveredIndex === i ? palette.bgHover : palette.bg,
                   }}
                 >
+                  <MessageSquare size={14} />
                   {action.label}
                 </button>
               )

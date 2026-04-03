@@ -13,6 +13,7 @@ interface Message {
   role: 'user' | 'assistant' | 'divider'
   // user messages
   text?: string
+  quickActionLabel?: string
   // assistant messages
   blocks?: ChatContentBlock[]
   toolResults?: Map<string, string>
@@ -56,6 +57,7 @@ export function MessageList({ taskId, registerListener, sendChatMessage, sendQue
           id: `user-${nextId.current++}`,
           role: 'user',
           text: msg.text,
+          quickActionLabel: msg.quickActionLabel,
         }, {
           id: `assistant-${nextId.current++}`,
           role: 'assistant',
@@ -81,6 +83,7 @@ export function MessageList({ taskId, registerListener, sendChatMessage, sendQue
               id: `user-${nextId.current++}`,
               role: 'user',
               text: entry.text,
+              quickActionLabel: entry.quickActionLabel,
             })
           } else if (entry.type === 'assistant') {
             // Merge consecutive assistant entries into one message
@@ -256,7 +259,7 @@ export function MessageList({ taskId, registerListener, sendChatMessage, sendQue
             )
           }
           if (msg.role === 'user') {
-            return <UserMessage key={msg.id} text={msg.text!} />
+            return <UserMessage key={msg.id} text={msg.text!} quickActionLabel={msg.quickActionLabel} />
           }
           const isLast = idx === messages.length - 1
           return (
