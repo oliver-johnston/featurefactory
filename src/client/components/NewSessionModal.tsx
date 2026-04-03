@@ -213,7 +213,6 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
             rows={3}
             autoFocus
           />
-          <span className="text-xs text-muted mt-1 block">⌘+Enter to submit</span>
         </div>
         )}
 
