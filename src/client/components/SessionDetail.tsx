@@ -219,7 +219,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
               />
             </div>
             {/* Right: Design/Plan tabs */}
-            <div className="w-[480px] shrink-0 border-l border-overlay flex flex-col">
+            <div className="flex-1 min-w-0 border-l border-overlay flex flex-col">
               <div className="shrink-0 flex border-b border-overlay">
                 {tabs.map(tab => (
                   <button
