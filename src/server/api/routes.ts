@@ -71,7 +71,7 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
   })
 
   app.post('/api/sessions', async (req, reply) => {
-    const body = req.body as { title?: string; repos?: string[]; provider?: ModelProvider; model?: string; workflow?: 'free' | 'full' }
+    const body = req.body as { title?: string; repos?: string[]; provider?: ModelProvider; model?: string; workflow?: 'free' | 'quick' | 'full' | 'debug' }
 
     const workflow = body.workflow ?? 'full'
     const provider = body.provider
@@ -110,7 +110,7 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
       return reply.code(201).send(session)
     }
 
-    // Full workflow
+    // Structured workflow (quick, full, debug)
     const title = body.title?.trim()
     const repos = body.repos?.map(r => r.trim()).filter(Boolean)
 
@@ -129,9 +129,8 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
         repos,
         provider,
         model,
-        workflow: 'full',
+        workflow,
         status: 'active',
-        stage: 'brainstorm',
         created_at: new Date().toISOString(),
         worktree: { root: rootPath, branch, paths: [] },
       }
