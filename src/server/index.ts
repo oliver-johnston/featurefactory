@@ -124,6 +124,7 @@ function persistPrsFromEvent(worktreePath: string, event: ChatStreamEvent): void
 }
 
 function getContextPromptLines(session: Session): string[] {
+  if (!session.worktree) return []
   const taskFilePath = getTaskContextPath(session.worktree.root)
   const designFilePath = getDesignContextPath(session.worktree.root)
   const implementationFilePath = getImplementationContextPath(session.worktree.root)
@@ -212,7 +213,7 @@ async function main() {
 
   async function broadcastGitStatusForSession(taskId: string): Promise<void> {
     const session = sessionCache.get(taskId)
-    if (!session || session.worktree.paths.length === 0) return
+    if (!session || !session.worktree || session.worktree.paths.length === 0) return
     try {
       const status = await getGitStatus(session.worktree.paths[0], session.repos[0])
       broadcastGitStatus(taskId, status)
@@ -222,28 +223,40 @@ async function main() {
   }
 
   async function spawnSession(session: Session): Promise<void> {
-    console.log(`[session] spawning ${session.id} title="${session.title}" provider=${session.provider} model=${session.model}`)
+    console.log(`[session] spawning ${session.id} title="${session.title}" provider=${session.provider} model=${session.model} workflow=${session.workflow ?? 'full'}`)
 
     const taskDir = join(TASKS_DIR, session.id)
-    await ensureSessionContextFiles(session, taskDir)
-    await generateClaudeMd(session)
-    const preparedSession = await syncSessionStage(session)
+    const isFree = session.workflow === 'free'
+    const runnerCwd = isFree ? CWD : session.worktree!.root
+
+    if (!isFree) {
+      await ensureSessionContextFiles(session, taskDir)
+      await generateClaudeMd(session)
+    }
+
+    const preparedSession = isFree ? session : await syncSessionStage(session)
     sessionCache.set(session.id, preparedSession)
-    const watcher = new FileWatcher(session.id, taskDir, session.worktree.root)
-    await watcher.start((fileType, content) => {
-      broadcastFileUpdate(session.id, fileType, content)
-    })
-    watchers.set(session.id, watcher)
-    console.log(`[session] watcher ready for ${session.id}`)
+
+    if (!isFree) {
+      const watcher = new FileWatcher(session.id, taskDir, session.worktree!.root)
+      await watcher.start((fileType, content) => {
+        broadcastFileUpdate(session.id, fileType, content)
+      })
+      watchers.set(session.id, watcher)
+      console.log(`[session] watcher ready for ${session.id}`)
+    }
 
     const strategy = session.provider === 'anthropic' ? claudeStrategy : codexStrategy
+    const systemPrompt = isFree ? '' : buildSystemPrompt(preparedSession)
+    const initialPrompt = isFree ? '' : buildInitialPrompt(preparedSession)
+
     const runner = new CliRunner(
       session.id,
-      session.worktree.root,
+      runnerCwd,
       strategy,
       session.model,
-      buildSystemPrompt(preparedSession),
-      buildInitialPrompt(preparedSession),
+      systemPrompt,
+      initialPrompt,
     )
 
     if (preparedSession.providerSessionId) {
@@ -254,7 +267,15 @@ async function main() {
     await appendChatEvent(TASKS_DIR, session.id, { ts: new Date().toISOString(), type: 'session_start' })
     console.log(`[session] runner ready for ${session.id}`)
 
-    // Update session state to running and broadcast
+    // For free sessions, mark as waiting_for_input immediately (no initial turn)
+    if (isFree) {
+      const waitingSession: Session = { ...preparedSession, sessionState: 'waiting_for_input' }
+      await persistSession(waitingSession)
+      console.log(`[session] ${session.id} free session ready, waiting for input`)
+      return
+    }
+
+    // Full workflow: start initial turn
     const runningSession: Session = { ...preparedSession, sessionState: 'running' }
     await persistSession(runningSession)
     console.log(`[session] ${session.id} marked running`)
@@ -263,8 +284,8 @@ async function main() {
       (event) => {
         broadcastChatEvent(session.id, { type: 'chat:event', taskId: session.id, event })
         persistChatStreamEvent(session.id, event)
-        persistTodosFromEvent(session.worktree.root, event)
-        persistPrsFromEvent(session.worktree.root, event)
+        persistTodosFromEvent(session.worktree!.root, event)
+        persistPrsFromEvent(session.worktree!.root, event)
       },
       async () => {
         const providerSessionId = runner.getProviderSessionId()
@@ -280,7 +301,6 @@ async function main() {
         broadcastChatDone(session.id)
         await broadcastGitStatusForSession(session.id)
         await persistSession(doneSession)
-        // Auto-send queued messages if any
         await flushQueue(session.id)
       },
       async (err) => {
@@ -314,8 +334,10 @@ async function main() {
       (event) => {
         broadcastChatEvent(taskId, { type: 'chat:event', taskId, event })
         persistChatStreamEvent(taskId, event)
-        persistTodosFromEvent(prepared.worktree.root, event)
-        persistPrsFromEvent(prepared.worktree.root, event)
+        if (prepared.worktree) {
+          persistTodosFromEvent(prepared.worktree.root, event)
+          persistPrsFromEvent(prepared.worktree.root, event)
+        }
       },
       async () => {
         const providerSessionId = runner.getProviderSessionId()
@@ -474,7 +496,7 @@ async function main() {
     handleQueueForceSend,
     async (taskId) => {
       const session = sessionCache.get(taskId)
-      if (!session || session.worktree.paths.length === 0) return null
+      if (!session || !session.worktree || session.worktree.paths.length === 0) return null
       try {
         return await getGitStatus(session.worktree.paths[0], session.repos[0])
       } catch {
