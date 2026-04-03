@@ -200,7 +200,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
           <div className="flex items-center gap-3 mt-1">
             <span className="text-xs text-mauve font-mono">{repoName}</span>
             <span className="text-xs text-indigo font-mono">{modelLabel}</span>
-            <span className="text-xs text-sky font-mono">{session.worktree.branch}</span>
+            {session.worktree && <span className="text-xs text-sky font-mono">{session.worktree.branch}</span>}
           </div>
         </div>
 

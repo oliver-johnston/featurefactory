@@ -198,8 +198,3 @@ export function getInitialTurnInstruction(stage: SessionStage): string {
       return 'Read the task, design, and implementation files, then continue implementing. Use TodoWrite to track progress as a checklist. Prefer subagent-driven development for tasks with multiple independent steps. For simpler single-track tasks, implement in-process. Commit your work as you go.'
   }
 }
-
-export function shouldStartSessionOnBoot(session: Session): boolean {
-  if (session.workflow === 'free') return session.status === 'active'
-  return session.status === 'active' && getSessionStage(session) !== 'implement'
-}

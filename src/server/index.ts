@@ -197,6 +197,7 @@ async function main() {
   }
 
   function updateRunnerPrompts(taskId: string, session: Session): void {
+    if (session.workflow === 'free') return
     const runner = runners.get(taskId)
     if (!runner) return
     runner.setPrompts(buildSystemPrompt(session), buildInitialPrompt(session))
