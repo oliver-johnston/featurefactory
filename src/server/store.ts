@@ -6,6 +6,7 @@ function normalizeSession(session: Session): Session {
   return {
     ...session,
     stage: session.stage ?? 'brainstorm',
+    workflow: session.workflow ?? 'full',
   }
 }
 
