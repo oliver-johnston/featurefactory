@@ -196,7 +196,7 @@ describe('POST /api/sessions', () => {
     expect(session.model).toBe('gpt-5')
     expect(session.status).toBe('active')
     expect(session.stage).toBe('brainstorm')
-    expect(session.worktree.branch).toMatch(/^feat\/TASK-\d{3}-my-feature$/)
+    expect(session.worktree!.branch).toMatch(/^feat\/TASK-\d{3}-my-feature$/)
     expect(onSpawn).toHaveBeenCalledOnce()
     await app.close()
   })

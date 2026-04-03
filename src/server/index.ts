@@ -152,7 +152,7 @@ function buildInitialPrompt(session: Session): string {
     `Task: ${session.title}`,
     `Stage: ${stage}`,
     ...getContextPromptLines(session).map(line => line.replace('Your ', '')),
-    `Worktree: ${session.worktree.root}`,
+    `Worktree: ${session.worktree!.root}`,
     '',
     getInitialTurnInstruction(stage),
   ].join('\n')

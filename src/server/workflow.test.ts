@@ -77,7 +77,7 @@ describe('syncSessionStage', () => {
   it('advances from brainstorm to design after a design doc is written', async () => {
     const { root, session } = await createSession('brainstorm')
     try {
-      await writeFile(getDesignContextPath(session.worktree.root), '# Design\n\nAdopt a staged workflow.\n')
+      await writeFile(getDesignContextPath(session.worktree!.root), '# Design\n\nAdopt a staged workflow.\n')
       const updated = await syncSessionStage(session)
       expect(updated.stage).toBe('design')
     } finally {
@@ -98,8 +98,8 @@ describe('syncSessionStage', () => {
   it('auto-advances from implementation_plan to implement when plan is written', async () => {
     const { root, session } = await createSession('implementation_plan')
     try {
-      await writeFile(getDesignContextPath(session.worktree.root), '# Design\n\nApproved design.\n')
-      await writeFile(getImplementationContextPath(session.worktree.root), '# Implementation\n\n1. Update prompts.\n')
+      await writeFile(getDesignContextPath(session.worktree!.root), '# Design\n\nApproved design.\n')
+      await writeFile(getImplementationContextPath(session.worktree!.root), '# Implementation\n\n1. Update prompts.\n')
       const updated = await syncSessionStage(session)
       expect(updated.stage).toBe('implement')
     } finally {
@@ -110,8 +110,8 @@ describe('syncSessionStage', () => {
   it('does not auto-advance from implementation_plan when plan is default', async () => {
     const { root, session } = await createSession('implementation_plan')
     try {
-      await writeFile(getDesignContextPath(session.worktree.root), '# Design\n\nApproved design.\n')
-      await writeFile(getImplementationContextPath(session.worktree.root), '# Implementation\n\nNo implementation plan yet.\n')
+      await writeFile(getDesignContextPath(session.worktree!.root), '# Design\n\nApproved design.\n')
+      await writeFile(getImplementationContextPath(session.worktree!.root), '# Implementation\n\nNo implementation plan yet.\n')
       const updated = await syncSessionStage(session)
       expect(updated.stage).toBe('implementation_plan')
     } finally {
@@ -124,7 +124,7 @@ describe('applyUserStageTransition', () => {
   it('moves from design to implementation plan on approval', async () => {
     const { root, session } = await createSession('design')
     try {
-      await writeFile(getDesignContextPath(session.worktree.root), '# Design\n\nLooks solid.\n')
+      await writeFile(getDesignContextPath(session.worktree!.root), '# Design\n\nLooks solid.\n')
       const updated = await applyUserStageTransition(session, 'Looks good, go ahead')
       expect(updated.stage).toBe('implementation_plan')
     } finally {
@@ -135,8 +135,8 @@ describe('applyUserStageTransition', () => {
   it('does not advance from implementation_plan on approval message', async () => {
     const { root, session } = await createSession('implementation_plan')
     try {
-      await writeFile(getDesignContextPath(session.worktree.root), '# Design\n\nApproved.\n')
-      await writeFile(getImplementationContextPath(session.worktree.root), '# Implementation\n\n1. Update prompts.\n')
+      await writeFile(getDesignContextPath(session.worktree!.root), '# Design\n\nApproved.\n')
+      await writeFile(getImplementationContextPath(session.worktree!.root), '# Implementation\n\n1. Update prompts.\n')
       const updated = await applyUserStageTransition(session, 'Approve the plan and start implementing')
       // Auto-advance via syncSessionStage handles this now, not approval messages.
       // syncSessionStage is called internally and will advance to implement because

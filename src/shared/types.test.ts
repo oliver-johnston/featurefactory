@@ -72,7 +72,7 @@ describe('Session type', () => {
 
   it('has multi-repo shape with repos array and worktree paths', () => {
     expectTypeOf<Session['repos']>().toEqualTypeOf<string[]>()
-    expectTypeOf<Session['worktree']>().toEqualTypeOf<SessionWorktree>()
+    expectTypeOf<Session['worktree']>().toEqualTypeOf<SessionWorktree | null>()
     expectTypeOf<SessionWorktree['root']>().toEqualTypeOf<string>()
     expectTypeOf<SessionWorktree['paths']>().toEqualTypeOf<string[]>()
     expectTypeOf<SessionWorktree['branch']>().toEqualTypeOf<string>()
