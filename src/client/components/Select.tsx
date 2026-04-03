@@ -37,7 +37,7 @@ export function Select({
           </span>
         </ListboxButton>
 
-        <ListboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-mantle border border-overlay py-1 text-sm shadow-lg focus:outline-none">
+        <ListboxOptions className="absolute z-10 mt-1 max-h-60 min-w-full w-max max-w-sm overflow-auto rounded bg-mantle border border-overlay py-1 text-sm shadow-lg focus:outline-none">
           {options.map((option) => (
             <ListboxOption
               key={option.value}
