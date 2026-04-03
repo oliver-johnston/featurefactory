@@ -22,13 +22,13 @@ interface Props {
   modelOptions: ModelOptionsByProvider | null
   modelsError: string | null
   defaultModel?: { provider: string; id: string } | null
-  onCreated: (title: string, repos: string[], provider: ModelProvider, model: string, workflow: 'free' | 'full') => Promise<unknown>
+  onCreated: (title: string, repos: string[], provider: ModelProvider, model: string, workflow: 'free' | 'quick' | 'full' | 'debug') => Promise<unknown>
   onClose: () => void
 }
 
 export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCreated, onClose }: Props) {
   const [title, setTitle] = useState('')
-  const [workflow, setWorkflow] = useState<'free' | 'full'>('full')
+  const [workflow, setWorkflow] = useState<'free' | 'quick' | 'full' | 'debug'>('full')
   const [selectedRepos, setSelectedRepos] = useState<string[]>([])
   const [providerOptions, setProviderOptions] = useState<ModelOptionsByProvider>({})
   const [provider, setProvider] = useState<ModelProvider>('')
@@ -95,15 +95,15 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
     if (loadingModels) { setError('Models are still loading'); return }
     if (!provider) { setError('Provider is required'); return }
     if (!model.trim()) { setError('Model is required'); return }
-    if (workflow === 'full') {
+    if (workflow !== 'free') {
       if (!title.trim()) { setError('Title is required'); return }
       if (selectedRepos.length === 0) { setError('Select at least one repository'); return }
     }
     setSubmitting(true)
     setError(null)
     try {
-      const effectiveTitle = workflow === 'full' ? title.trim() : ''
-      const effectiveRepos = workflow === 'full' ? selectedRepos : []
+      const effectiveTitle = workflow !== 'free' ? title.trim() : ''
+      const effectiveRepos = workflow !== 'free' ? selectedRepos : []
       await onCreated(effectiveTitle, effectiveRepos, provider, model.trim(), workflow)
       onClose()
     } catch (e) {
@@ -130,44 +130,76 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
         <div className="mb-5">
           <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">Workflow *</label>
           <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => setWorkflow('free')}
-              className={`flex flex-col items-center gap-1.5 p-4 rounded-lg border-2 transition-colors text-center ${
-                workflow === 'free'
-                  ? 'border-indigo bg-indigo/10 text-text'
-                  : 'border-overlay bg-mantle text-muted hover:border-muted'
-              }`}
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="4 17 10 11 4 5" />
-                <line x1="12" y1="19" x2="20" y2="19" />
-              </svg>
-              <span className="text-sm font-semibold">Free</span>
-              <span className="text-xs text-muted leading-tight">Open session in your working directory</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setWorkflow('full')}
-              className={`flex flex-col items-center gap-1.5 p-4 rounded-lg border-2 transition-colors text-center ${
-                workflow === 'full'
-                  ? 'border-indigo bg-indigo/10 text-text'
-                  : 'border-overlay bg-mantle text-muted hover:border-muted'
-              }`}
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="6" y1="3" x2="6" y2="15" />
-                <circle cx="18" cy="6" r="3" />
-                <circle cx="6" cy="18" r="3" />
-                <path d="M18 9a9 9 0 0 1-9 9" />
-              </svg>
-              <span className="text-sm font-semibold">Full</span>
-              <span className="text-xs text-muted leading-tight">Worktree isolation with guided workflow</span>
-            </button>
+            {([
+              {
+                id: 'free' as const,
+                label: 'Free',
+                desc: 'Open session in your working directory',
+                icon: (
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="4 17 10 11 4 5" />
+                    <line x1="12" y1="19" x2="20" y2="19" />
+                  </svg>
+                ),
+              },
+              {
+                id: 'quick' as const,
+                label: 'Quick',
+                desc: 'Explore, plan, approve, implement',
+                icon: (
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                  </svg>
+                ),
+              },
+              {
+                id: 'full' as const,
+                label: 'Full',
+                desc: 'Brainstorm, design, plan, implement',
+                icon: (
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="6" y1="3" x2="6" y2="15" />
+                    <circle cx="18" cy="6" r="3" />
+                    <circle cx="6" cy="18" r="3" />
+                    <path d="M18 9a9 9 0 0 1-9 9" />
+                  </svg>
+                ),
+              },
+              {
+                id: 'debug' as const,
+                label: 'Debug',
+                desc: 'Systematic debugging with superpowers',
+                icon: (
+                  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2a4 4 0 0 0-4 4v2H6a2 2 0 0 0-2 2v1h4" />
+                    <path d="M18 8h-2V6a4 4 0 0 0-4-4" />
+                    <rect x="8" y="10" width="8" height="10" rx="2" />
+                    <path d="M4 11h2" /><path d="M18 11h2" />
+                    <path d="M4 15h2" /><path d="M18 15h2" />
+                    <line x1="12" y1="10" x2="12" y2="20" />
+                  </svg>
+                ),
+              },
+            ]).map(opt => (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setWorkflow(opt.id)}
+                className={`flex flex-col items-center gap-1.5 p-4 rounded-lg border-2 transition-colors text-center ${
+                  workflow === opt.id
+                    ? 'border-indigo bg-indigo/10 text-text'
+                    : 'border-overlay bg-mantle text-muted hover:border-muted'
+                }`}
+              >
+                {opt.icon}
+                <span className="text-sm font-semibold">{opt.label}</span>
+                <span className="text-xs text-muted leading-tight">{opt.desc}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {workflow === 'full' && (
+        {workflow !== 'free' && (
         <div className="mb-4">
           <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">Description *</label>
           <textarea
@@ -185,7 +217,7 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
         </div>
         )}
 
-        {workflow === 'full' && repos && repos.repos.length > 0 && (
+        {workflow !== 'free' && repos && repos.repos.length > 0 && (
           <div className="mb-5">
             <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">
               Repositories *
