@@ -50,7 +50,7 @@ export type ChatContentBlock =
 
 export type ChatHistoryEntry =
   | { ts: string; type: 'session_start' }
-  | { ts: string; type: 'user'; text: string }
+  | { ts: string; type: 'user'; text: string; quickActionLabel?: string }
   | { ts: string; type: 'assistant'; blocks: ChatContentBlock[] }
   | { ts: string; type: 'tool_result'; tool_use_id: string; content: string }
 
@@ -66,12 +66,12 @@ export type WsMessage =
   | { type: 'pty:resize'; taskId: string; cols: number; rows: number }
   // Chat (replaces pty:*)
   | { type: 'chat:subscribe'; taskId: string }
-  | { type: 'chat:message'; taskId: string; text: string }
+  | { type: 'chat:message'; taskId: string; text: string; quickActionLabel?: string }
   | { type: 'chat:stop'; taskId: string }
   | { type: 'chat:event'; taskId: string; event: ChatStreamEvent }
   | { type: 'chat:done'; taskId: string }
   | { type: 'chat:error'; taskId: string; error: string }
-  | { type: 'chat:user'; taskId: string; text: string }
+  | { type: 'chat:user'; taskId: string; text: string; quickActionLabel?: string }
   | { type: 'chat:history'; taskId: string; entries: ChatHistoryEntry[] }
   | { type: 'chat:history_done'; taskId: string }
   // Message queue

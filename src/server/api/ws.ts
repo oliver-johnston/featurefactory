@@ -53,8 +53,8 @@ export function broadcastGitStatus(taskId: string, status: GitStatus) {
   }
 }
 
-export function broadcastChatUser(taskId: string, text: string) {
-  const msg: WsMessage = { type: 'chat:user', taskId, text }
+export function broadcastChatUser(taskId: string, text: string, quickActionLabel?: string) {
+  const msg: WsMessage = { type: 'chat:user', taskId, text, ...(quickActionLabel ? { quickActionLabel } : {}) }
   const json = JSON.stringify(msg)
   for (const client of clients) {
     if (client.readyState === 1) client.send(json)
@@ -88,7 +88,7 @@ export async function registerWs(
   getInitialSessions: () => Session[],
   getHistory: (taskId: string) => Promise<ChatHistoryEntry[]>,
   getQueueState: (taskId: string) => string[],
-  onChatMessage: (taskId: string, text: string) => Promise<void>,
+  onChatMessage: (taskId: string, text: string, quickActionLabel?: string) => Promise<void>,
   onChatStop: (taskId: string) => Promise<void>,
   onQueueAdd: (taskId: string, text: string) => Promise<void>,
   onQueueRemove: (taskId: string, index: number) => Promise<void>,
@@ -149,7 +149,7 @@ export async function registerWs(
         if (msg.type === 'chat:message') {
           const runner = getRunner(msg.taskId)
           if (runner) runner.recordUserMessage(msg.text)
-          await onChatMessage(msg.taskId, msg.text)
+          await onChatMessage(msg.taskId, msg.text, msg.quickActionLabel)
         }
 
         if (msg.type === 'chat:stop') {

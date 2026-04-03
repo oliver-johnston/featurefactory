@@ -293,7 +293,7 @@ async function main() {
     )
   }
 
-  async function handleChatMessage(taskId: string, text: string): Promise<void> {
+  async function handleChatMessage(taskId: string, text: string, quickActionLabel?: string): Promise<void> {
     const runner = runners.get(taskId)
     if (!runner) return
 
@@ -304,8 +304,8 @@ async function main() {
 
     await persistSession(prepared)
 
-    await appendChatEvent(TASKS_DIR, taskId, { ts: new Date().toISOString(), type: 'user', text })
-    broadcastChatUser(taskId, text)
+    await appendChatEvent(TASKS_DIR, taskId, { ts: new Date().toISOString(), type: 'user', text, ...(quickActionLabel ? { quickActionLabel } : {}) })
+    broadcastChatUser(taskId, text, quickActionLabel)
 
     runner.sendMessage(
       text,

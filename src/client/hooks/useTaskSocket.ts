@@ -103,8 +103,8 @@ export function useSessionSocket() {
     }
   }, [])
 
-  const sendChatMessage = useCallback((taskId: string, text: string) => {
-    ws.current?.send(JSON.stringify({ type: 'chat:message', taskId, text } satisfies WsMessage))
+  const sendChatMessage = useCallback((taskId: string, text: string, quickActionLabel?: string) => {
+    ws.current?.send(JSON.stringify({ type: 'chat:message', taskId, text, ...(quickActionLabel ? { quickActionLabel } : {}) } satisfies WsMessage))
   }, [])
 
   const sendStopMessage = useCallback((taskId: string) => {

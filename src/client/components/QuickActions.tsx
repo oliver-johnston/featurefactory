@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { MessageSquare } from 'lucide-react'
 import type { GitStatus as GitStatusType, QuickAction } from '../types.js'
 
 interface Props {
   status: GitStatusType | null
   prs: string[]
-  onSendMessage: (text: string) => void
+  repo?: string
+  onSendMessage: (text: string, quickActionLabel?: string) => void
 }
 
 const CATPPUCCIN_PALETTE = [
@@ -26,16 +28,17 @@ function extractPrNumber(url: string): string {
   return match ? `#${match[1]}` : url
 }
 
-export function QuickActions({ status, prs, onSendMessage }: Props) {
+export function QuickActions({ status, prs, repo, onSendMessage }: Props) {
   const [actions, setActions] = useState<QuickAction[]>([])
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/settings')
+    const url = repo ? `/api/settings?repo=${encodeURIComponent(repo)}` : '/api/settings'
+    fetch(url)
       .then(r => r.json())
       .then(s => setActions(s.quickActions ?? []))
       .catch(() => {})
-  }, [])
+  }, [repo])
 
   return (
     <div className="flex flex-col gap-3">
@@ -84,15 +87,16 @@ export function QuickActions({ status, prs, onSendMessage }: Props) {
               return (
                 <button
                   key={i}
-                  onClick={() => onSendMessage(action.message)}
+                  onClick={() => onSendMessage(action.message, action.label)}
                   onMouseEnter={() => setHoveredIndex(i)}
                   onMouseLeave={() => setHoveredIndex(null)}
-                  className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center"
+                  className="w-full transition-colors rounded px-3 py-2 text-sm font-medium text-center inline-flex items-center justify-center gap-1.5"
                   style={{
                     color: palette.text,
                     backgroundColor: hoveredIndex === i ? palette.bgHover : palette.bg,
                   }}
                 >
+                  <MessageSquare size={14} />
                   {action.label}
                 </button>
               )
