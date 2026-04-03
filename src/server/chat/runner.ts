@@ -14,7 +14,6 @@ export type HistoryEntry =
 export interface ChatRunner {
   start(onEvent: OnEvent, onDone: OnDone, onError: OnError): void
   sendMessage(text: string, onEvent: OnEvent, onDone: OnDone, onError: OnError): void
-  setPrompts(systemPrompt: string, initialPrompt: string): void
   kill(): void
   killAsync(): Promise<void>
   getProviderSessionId(): string | null
