@@ -5,6 +5,7 @@ import type { GitStatus as GitStatusType, QuickAction } from '../types.js'
 interface Props {
   status: GitStatusType | null
   prs: string[]
+  repo?: string
   onSendMessage: (text: string, quickActionLabel?: string) => void
 }
 
@@ -27,16 +28,17 @@ function extractPrNumber(url: string): string {
   return match ? `#${match[1]}` : url
 }
 
-export function QuickActions({ status, prs, onSendMessage }: Props) {
+export function QuickActions({ status, prs, repo, onSendMessage }: Props) {
   const [actions, setActions] = useState<QuickAction[]>([])
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/settings')
+    const url = repo ? `/api/settings?repo=${encodeURIComponent(repo)}` : '/api/settings'
+    fetch(url)
       .then(r => r.json())
       .then(s => setActions(s.quickActions ?? []))
       .catch(() => {})
-  }, [])
+  }, [repo])
 
   return (
     <div className="flex flex-col gap-3">

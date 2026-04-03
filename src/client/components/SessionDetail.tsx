@@ -147,6 +147,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
               <QuickActions
                 status={gitStatus}
                 prs={prs}
+                repo={session.repos[0]}
                 onSendMessage={handleGitMessage}
               />
               {session.status === 'active' && (
