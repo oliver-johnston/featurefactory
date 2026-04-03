@@ -125,10 +125,6 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
   const waitingForInput = session.sessionState === 'waiting_for_input'
   const repoName = session.repos.map(r => r.split('/').pop() ?? r).join(', ')
   const modelLabel = `${session.provider}/${session.model}`
-  const stageLabel = session.stage === 'implementation_plan'
-    ? 'implementation plan'
-    : session.stage ?? 'brainstorm'
-
   const allTabs: { id: Tab; label: string }[] = [
     { id: 'chat', label: 'Chat' },
     { id: 'design', label: 'Design' },
