@@ -128,11 +128,12 @@ export function useSessionSocket() {
     repos: string[],
     provider: ModelProvider,
     model: string,
+    workflow: 'free' | 'full' = 'full',
   ): Promise<Session> => {
     const res = await fetch('/api/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, repos, provider, model }),
+      body: JSON.stringify({ title, repos, provider, model, workflow }),
     })
     if (!res.ok) {
       const { error } = await res.json()

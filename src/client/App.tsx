@@ -192,7 +192,9 @@ export function App() {
           modelOptions={modelOptions}
           modelsError={modelsError}
           defaultModel={defaultModel}
-          onCreated={createSession}
+          onCreated={(title, repos, provider, model, workflow) =>
+            createSession(title, repos, provider, model, workflow)
+          }
           onClose={() => setShowNewSession(false)}
         />
       )}
