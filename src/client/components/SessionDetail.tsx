@@ -109,7 +109,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
     }
   }
 
-  const handleGitMessage = (text: string, quickActionLabel?: string) => {
+  const handleQuickAction = (text: string, quickActionLabel?: string) => {
     if (session.sessionState === 'running') {
       sendQueueAdd(session.id, text)
       return
@@ -157,7 +157,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                 status={gitStatus}
                 prs={prs}
                 repo={session.repos[0]}
-                onSendMessage={handleGitMessage}
+                onSendMessage={handleQuickAction}
               />
               {session.status === 'active' && (
                 <button
@@ -343,7 +343,7 @@ export function SessionDetail({ session, onClose, onMarkDone, onSetOnHold, subsc
                 <QuickActions
                   status={gitStatus}
                   prs={prs}
-                  onSendMessage={handleGitMessage}
+                  onSendMessage={handleQuickAction}
                 />
                 {session.status === 'active' && (
                   <button
