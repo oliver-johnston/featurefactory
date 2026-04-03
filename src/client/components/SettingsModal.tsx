@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import type { Settings, SettingsModelOption, QuickAction, SettingsOverrides } from '../types.js'
+import { Select } from './Select'
 
 type SettingsTab = 'models' | 'quickActions' | 'github'
 
@@ -233,16 +234,14 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
           <div className="flex items-center justify-between">
             <h2 className="text-text text-base font-semibold">Settings</h2>
             {repos.length > 0 && (
-              <select
-                className="bg-mantle border border-overlay rounded text-text text-sm px-2 py-1.5"
+              <Select
                 value={selectedRepo ?? ''}
-                onChange={e => handleRepoChange(e.target.value || null)}
-              >
-                <option value="">Global</option>
-                {repos.map(r => (
-                  <option key={r} value={r} title={r}>{r.split('/').pop()}</option>
-                ))}
-              </select>
+                onChange={(val) => handleRepoChange(val || null)}
+                options={[
+                  { value: '', label: 'Global' },
+                  ...repos.map(r => ({ value: r, label: r.split('/').pop()! })),
+                ]}
+              />
             )}
           </div>
         </div>
@@ -329,14 +328,14 @@ export function SettingsModal({ onClose, onSettingsSaved }: Props) {
                 {showAddModel ? (
                   <div className="border border-overlay rounded p-3 mt-2">
                     <div className="flex gap-2 mb-2">
-                      <select
-                        className="bg-mantle border border-overlay rounded text-text text-sm px-2 py-1.5"
+                      <Select
                         value={newModelProvider}
-                        onChange={e => setNewModelProvider(e.target.value)}
-                      >
-                        <option value="anthropic">anthropic</option>
-                        <option value="openai">openai</option>
-                      </select>
+                        onChange={setNewModelProvider}
+                        options={[
+                          { value: 'anthropic', label: 'anthropic' },
+                          { value: 'openai', label: 'openai' },
+                        ]}
+                      />
                       <input
                         className="flex-1 bg-mantle border border-overlay rounded text-text text-sm px-2 py-1.5"
                         placeholder="Model ID"

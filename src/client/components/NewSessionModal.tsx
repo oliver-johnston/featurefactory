@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import type { ModelOption, ModelProvider } from '../types.js'
+import { Select } from './Select'
 
 interface RepoDetection {
   isSingleRepo: boolean
@@ -241,23 +242,22 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
             )}
 
             <div className="flex gap-2">
-              <select
-                className="flex-1 bg-mantle border border-overlay rounded text-text text-sm px-3 py-2 focus:outline-none focus:border-indigo cursor-pointer"
+              <Select
+                className="flex-1"
                 value=""
-                onChange={e => {
-                  const val = e.target.value
+                onChange={(val) => {
                   if (val && !selectedRepos.includes(val)) {
                     setSelectedRepos(prev => [...prev, val])
                   }
                 }}
-              >
-                <option value="">Add a repository…</option>
-                {repos.repos
-                  .filter(r => !selectedRepos.includes(r))
-                  .map(r => (
-                    <option key={r} value={r}>{r.split('/').pop()}</option>
-                  ))}
-              </select>
+                options={[
+                  { value: '', label: 'Add a repository\u2026' },
+                  ...repos.repos
+                    .filter(r => !selectedRepos.includes(r))
+                    .map(r => ({ value: r, label: r.split('/').pop()! })),
+                ]}
+                placeholder="Add a repository\u2026"
+              />
               <button
                 type="button"
                 onClick={handleRefreshRepos}
@@ -273,16 +273,12 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
 
         <div className="mb-5">
           <label className="block text-xs text-muted uppercase tracking-wider mb-1.5">Model *</label>
-          <select
-            className="w-full bg-mantle border border-overlay rounded text-text text-sm px-3 py-2 focus:outline-none focus:border-indigo cursor-pointer"
+          <Select
             value={combined}
-            onChange={e => setCombined(e.target.value)}
+            onChange={setCombined}
+            options={allModels}
             disabled={loadingModels || allModels.length === 0}
-          >
-            {allModels.map(option => (
-              <option key={option.value} value={option.value}>{option.label}</option>
-            ))}
-          </select>
+          />
         </div>
 
         {error && <p className="text-red text-xs mb-3">{error}</p>}
