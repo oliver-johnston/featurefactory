@@ -8,11 +8,8 @@ import type { ChatRunner } from './chat/runner.js'
 import {
   ensureSessionContextFiles,
   generateClaudeMd,
-  getDesignContextPath,
-  getImplementationContextPath,
   getPrsContextPath,
   getTodosContextPath,
-  getTaskContextPath,
 } from './context.js'
 import { FileWatcher } from './files/watcher.js'
 import { CliRunner } from './runner/cli-runner.js'
@@ -35,14 +32,10 @@ import {
 import { appendChatEvent, readChatHistory } from './chat-history.js'
 import { listSessions, writeSession } from './store.js'
 import type { ChatStreamEvent, Session } from '../shared/types.js'
-import {
-  applyUserStageTransition,
-  buildStageInstructions,
-  getInitialTurnInstruction,
-  getSessionStage,
-  syncSessionStage,
-} from './workflow.js'
-import type { SessionStage } from '../shared/types.js'
+import { contextPromptLines } from './prompts/common.js'
+import * as fullPrompt from './prompts/full.js'
+import * as quickPrompt from './prompts/quick.js'
+import * as debugPrompt from './prompts/debug.js'
 import { readSettings } from './settings.js'
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
@@ -123,38 +116,33 @@ function persistPrsFromEvent(worktreePath: string, event: ChatStreamEvent): void
   }
 }
 
-function getContextPromptLines(session: Session): string[] {
-  if (!session.worktree) return []
-  const taskFilePath = getTaskContextPath(session.worktree.root)
-  const designFilePath = getDesignContextPath(session.worktree.root)
-  const implementationFilePath = getImplementationContextPath(session.worktree.root)
-
-  return [
-    `Your task file is at: ${taskFilePath}`,
-    `Your design file is at: ${designFilePath}`,
-    `Your implementation file is at: ${implementationFilePath}`,
-  ]
+function getWorkflowPrompts(workflow: string) {
+  switch (workflow) {
+    case 'quick': return quickPrompt
+    case 'debug': return debugPrompt
+    case 'full':
+    default: return fullPrompt
+  }
 }
 
 function buildSystemPrompt(session: Session): string {
-  const stage = getSessionStage(session)
+  const prompts = getWorkflowPrompts(session.workflow ?? 'full')
   return [
-    ...getContextPromptLines(session),
+    ...contextPromptLines(session),
     '',
     'Read these files at the start of each session to recover context.',
-    ...buildStageInstructions(stage),
+    '',
+    prompts.systemPrompt(),
   ].join('\n')
 }
 
 function buildInitialPrompt(session: Session): string {
-  const stage = getSessionStage(session)
+  const prompts = getWorkflowPrompts(session.workflow ?? 'full')
   return [
     `Task: ${session.title}`,
-    `Stage: ${stage}`,
-    ...getContextPromptLines(session).map(line => line.replace('Your ', '')),
-    `Worktree: ${session.worktree!.root}`,
+    ...contextPromptLines(session),
     '',
-    getInitialTurnInstruction(stage),
+    prompts.initialTurnInstruction(),
   ].join('\n')
 }
 
@@ -196,19 +184,11 @@ async function main() {
     )
   }
 
-  function updateRunnerPrompts(taskId: string, session: Session): void {
-    if (session.workflow === 'free') return
-    const runner = runners.get(taskId)
-    if (!runner) return
-    runner.setPrompts(buildSystemPrompt(session), buildInitialPrompt(session))
-  }
-
   async function prepareSession(taskId: string, updater: (session: Session) => Promise<Session> | Session): Promise<Session | null> {
     const current = sessionCache.get(taskId)
     if (!current) return null
     const updated = await updater(current)
     sessionCache.set(taskId, updated)
-    updateRunnerPrompts(taskId, updated)
     return updated
   }
 
@@ -235,7 +215,7 @@ async function main() {
       await generateClaudeMd(session)
     }
 
-    const preparedSession = isFree ? session : await syncSessionStage(session)
+    const preparedSession = session
     sessionCache.set(session.id, preparedSession)
 
     if (!isFree) {
@@ -295,8 +275,6 @@ async function main() {
           sessionState: 'waiting_for_input',
           providerSessionId: providerSessionId ?? undefined,
         }
-        doneSession = await syncSessionStage(doneSession)
-        updateRunnerPrompts(session.id, doneSession)
         console.log(`[session] ${session.id} turn complete providerSessionId=${providerSessionId ?? 'none'}`)
         runner.recordDone()
         broadcastChatDone(session.id)
@@ -319,9 +297,8 @@ async function main() {
     const runner = runners.get(taskId)
     if (!runner) return
 
-    const prepared = await prepareSession(taskId, async (session) => {
-      const staged = await applyUserStageTransition(session, text)
-      return { ...staged, sessionState: 'running', ...(session.status === 'on_hold' ? { status: 'active' as const } : {}) }
+    const prepared = await prepareSession(taskId, (session) => {
+      return { ...session, sessionState: 'running', ...(session.status === 'on_hold' ? { status: 'active' as const } : {}) }
     })
     if (!prepared) return
 
@@ -348,8 +325,6 @@ async function main() {
           sessionState: 'waiting_for_input',
           providerSessionId: providerSessionId ?? undefined,
         }
-        doneSession = await syncSessionStage(doneSession)
-        updateRunnerPrompts(taskId, doneSession)
         console.log(`[session] ${taskId} turn complete providerSessionId=${providerSessionId ?? 'none'}`)
         runner.recordDone()
         broadcastChatDone(taskId)
