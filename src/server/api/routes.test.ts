@@ -133,7 +133,6 @@ describe('GET /api/sessions', () => {
       provider: 'anthropic',
       model: 'claude-sonnet-4-5-20250929',
       status: 'active',
-      stage: 'brainstorm',
       created_at: new Date().toISOString(),
       worktree: { root: '/wt/TASK-001', branch: 'feat/TASK-001-test', paths: ['/wt/TASK-001/repo'] },
     }
@@ -195,7 +194,6 @@ describe('POST /api/sessions', () => {
     expect(session.provider).toBe('openai')
     expect(session.model).toBe('gpt-5')
     expect(session.status).toBe('active')
-    expect(session.stage).toBe('brainstorm')
     expect(session.worktree!.branch).toMatch(/^feat\/TASK-\d{3}-my-feature$/)
     expect(onSpawn).toHaveBeenCalledOnce()
     await app.close()

@@ -1,5 +1,5 @@
 import { describe, it, expectTypeOf } from 'vitest'
-import type { Session, SessionStatus, SessionStage, SessionWorktree, WsMessage, ModelProvider, GitStatus } from './types.js'
+import type { Session, SessionStatus, SessionWorktree, WsMessage, ModelProvider, GitStatus } from './types.js'
 
 describe('Session shape', () => {
   it('has required fields', () => {
@@ -10,7 +10,6 @@ describe('Session shape', () => {
       provider: 'anthropic',
       model: 'claude-sonnet-4-5-20250929',
       status: 'active',
-      stage: 'brainstorm',
       created_at: '2026-03-27T10:00:00Z',
       worktree: {
         root: '/path/to/.featurefactory/worktrees/TASK-001',
@@ -64,10 +63,6 @@ describe('Session type', () => {
 
   it('has providerSessionId field', () => {
     expectTypeOf<Session['providerSessionId']>().toMatchTypeOf<string | undefined>()
-  })
-
-  it('has workflow stage field', () => {
-    expectTypeOf<Session['stage']>().toMatchTypeOf<SessionStage | undefined>()
   })
 
   it('has multi-repo shape with repos array and worktree paths', () => {

@@ -12,7 +12,6 @@ const SAMPLE: Session = {
   provider: 'anthropic',
   model: 'claude-sonnet-4-5-20250929',
   status: 'active',
-  stage: 'brainstorm',
   workflow: 'full',
   created_at: '2026-03-27T10:00:00Z',
   worktree: {
