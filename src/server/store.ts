@@ -5,8 +5,8 @@ import type { Session } from '../shared/types.js'
 function normalizeSession(session: Session): Session {
   return {
     ...session,
-    stage: session.stage ?? 'brainstorm',
     workflow: session.workflow ?? 'full',
+    stage: (session.workflow ?? 'full') === 'free' ? undefined : (session.stage ?? 'brainstorm'),
   }
 }
 
