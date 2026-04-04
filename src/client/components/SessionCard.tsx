@@ -1,3 +1,4 @@
+import { Badge } from '@workspace/ui'
 import type { Session } from '../types.js'
 
 interface Props {
@@ -77,7 +78,7 @@ export function SessionCard({ session, onClick, selected = false }: Props) {
         <span className="text-sm text-text truncate">{session.title}</span>
       </div>
       <div className="flex items-center justify-between gap-2 mt-1">
-        <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-mono truncate" style={{ backgroundColor: pillColor.bg, color: pillColor.text }}>{repoName}</span>
+        <Badge className="font-mono truncate" style={{ backgroundColor: pillColor.bg, color: pillColor.text }}>{repoName}</Badge>
         <span className="text-xs text-subtle shrink-0">{timeAgo(session.created_at)}</span>
       </div>
     </div>

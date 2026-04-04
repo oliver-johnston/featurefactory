@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': resolve(__dirname, 'src/shared'),
+      '@workspace/ui': resolve(__dirname, '../libs/packages/ui'),
     },
     dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
   },

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Badge } from '@workspace/ui'
 import type { ModelOption, ModelProvider } from '../types.js'
 import { Select } from './Select'
 
@@ -224,9 +225,10 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
             {selectedRepos.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {selectedRepos.map(r => (
-                  <span
+                  <Badge
                     key={r}
-                    className="inline-flex items-center gap-1 bg-indigo/20 border border-indigo/40 text-indigo text-xs rounded-full px-2.5 py-1"
+                    className="gap-1 bg-indigo/20 text-indigo border border-indigo/40"
+                    size="md"
                   >
                     {r.split('/').pop()}
                     <button
@@ -236,7 +238,7 @@ export function NewSessionModal({ modelOptions, modelsError, defaultModel, onCre
                     >
                       ×
                     </button>
-                  </span>
+                  </Badge>
                 ))}
               </div>
             )}
