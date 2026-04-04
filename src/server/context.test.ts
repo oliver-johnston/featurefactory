@@ -138,6 +138,6 @@ describe('generateClaudeMd', () => {
     expect(content).toContain('Branch: feat/TASK-002-multi-repo')
     expect(content).toContain('`frontend/` — worktree of /home/user/repos/frontend')
     expect(content).toContain('`backend/` — worktree of /home/user/repos/backend')
-    expect(content).toContain('.featurefactory/')
+    expect(content).toContain('in this directory alongside the repo worktrees')
   })
 })

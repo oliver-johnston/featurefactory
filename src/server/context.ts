@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile } from 'fs/promises'
 import { existsSync } from 'fs'
 import { basename, join } from 'path'
 import type { Session } from '../shared/types.js'
@@ -12,7 +12,7 @@ export const DEFAULT_DESIGN_CONTENT = '# Design\n\nNo design notes yet.\n'
 export const DEFAULT_IMPLEMENTATION_CONTENT = '# Implementation\n\nNo implementation plan yet.\n'
 
 export function getContextDir(worktreePath: string): string {
-  return join(worktreePath, '.featurefactory')
+  return worktreePath
 }
 
 export function getTaskContextPath(worktreePath: string): string {
@@ -93,7 +93,7 @@ export async function generateClaudeMd(session: Session): Promise<void> {
     '',
     '## Context Files',
     '',
-    'Task, design, and implementation files are in `.featurefactory/` in this directory (not inside any repo worktree).',
+    'Task, design, and implementation files are in this directory alongside the repo worktrees.',
     '',
     '## Workflow Rules',
     '',
@@ -109,7 +109,6 @@ export async function ensureSessionContextFiles(session: Session, legacyTaskDir:
   if (session.workflow === 'free' || !session.worktree) return
 
   const contextDir = getContextDir(session.worktree.root)
-  await mkdir(contextDir, { recursive: true })
 
   const taskPath = getTaskContextPath(session.worktree.root)
   const todosPath = getTodosContextPath(session.worktree.root)

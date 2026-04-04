@@ -11,8 +11,8 @@ import { readSettings, writeSettings, readEffectiveSettings, writeRepoSettings, 
 import { broadcastSessionUpdate, broadcastSessionRemove } from './ws.js'
 import { generateSlug } from '../slug.js'
 import { mergeToMainAndPush, pushAndCreatePR } from '../orchestrator/git.js'
-export { FF_DIR, TASKS_DIR, WORKTREES_DIR } from '../paths.js'
-import { TASKS_DIR, WORKTREES_DIR } from '../paths.js'
+export { FF_DIR, TASKS_DIR } from '../paths.js'
+import { TASKS_DIR } from '../paths.js'
 
 let createLock = Promise.resolve()
 
@@ -120,7 +120,7 @@ export async function registerRoutes(app: FastifyInstance, opts: RoutesOpts) {
     const current = createLock.then(async () => {
       const id = await nextSessionId(TASKS_DIR)
       const slug = await generateSlug(title)
-      const rootPath = join(WORKTREES_DIR, id)
+      const rootPath = join(TASKS_DIR, id)
       const branch = `feat/${id}-${slug || id.toLowerCase()}`
 
       session = {
